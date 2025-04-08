@@ -9,7 +9,7 @@ Projeto de Gestão de uma Bilbioteca
 
 
 Grupo:
-Viviane Dias
-Joana Ventuzelos
-José Fernandes
-Luis Basto
+-Viviane Dias
+-Joana Ventuzelos
+-José Fernandes
+-Luis Basto
