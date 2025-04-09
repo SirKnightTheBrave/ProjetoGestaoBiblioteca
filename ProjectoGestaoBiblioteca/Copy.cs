@@ -29,14 +29,28 @@ namespace ProjectoGestaoBiblioteca
 
         public bool Loan()
         {
-            // Joana
-            return true;
+            if (IsLoaned)
+            {
+                return false;
+            }
+            else
+            {
+                IsLoaned = true;
+                return true;
+            }
         }
 
         public bool Return()
         {
-            // Joana
-            return true;
+            if (!IsLoaned)
+            {
+                return false;
+            }
+            else
+            {
+                IsLoaned = false;
+                return true;
+            }
         }
     }
 }

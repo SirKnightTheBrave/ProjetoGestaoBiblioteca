@@ -10,7 +10,7 @@ namespace ProjectoGestaoBiblioteca
     {
         public string Password { get; set; }
 
-        public Admin(string name, string username, string address, string phone, string password) : base(username, name, address, phone)
+        public Admin(string name, string username, string address, string phone, string password) : base (username, name, address, phone)
         {
             Password = password;
         }
