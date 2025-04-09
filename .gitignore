@@ -17,3 +17,6 @@ Thumbs.db
 
 # Ignorar dependências (se aplicável)
 node_modules/
+
+#Ficheiro específico para Mac
+.DS_Store
