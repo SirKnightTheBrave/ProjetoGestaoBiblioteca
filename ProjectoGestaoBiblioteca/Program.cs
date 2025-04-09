@@ -4,7 +4,9 @@
     {
         static void Main(string[] args)
         {
-            Biblioteca b = new Biblioteca();
+            var library = new Library("Group 3 Library", TimeSpan.FromDays(3));
+
+            //José
         }
     }
 }
