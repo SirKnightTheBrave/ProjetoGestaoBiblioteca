@@ -21,7 +21,13 @@ namespace ProjectoGestaoBiblioteca
             Phone = phone;
         }
 
-        //Viviane
+        public override string ToString()
+        {
+            return $"User: {Username}, Name: {Name}, Address: {Address}," +
+                $"Phone: {Phone}\n";//criação de string com dados do user para a lista de users (classe library)
+        }
+
+        
     }
 }
 

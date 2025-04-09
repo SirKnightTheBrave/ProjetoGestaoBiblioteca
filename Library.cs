@@ -92,16 +92,28 @@ namespace ProjectoGestaoBiblioteca
             return text;
         }
 
+        public User? FindUser(User user){
+            return Users.FirstOrDefault(u => u.Username == user.Username);//método procura o user pelo username
+        } 
+
         public bool AddUser(User user)
         {
-            //Viviane
-            return true;
+            User? storedUser = FindUser(user); //criação de uma variável de procura
+            if (storedUser != null){//verifica a existência do username                
+                return false;//caso o username exista, rompe o método e retorna falso
+            }
+            Users.Add(user);//
+            return true; //caso o username não exista, é criado um novo user   
         }
 
         public string UsersToString()
         {
-            //Viviane
-            return "";
+            string text = "Users:\n";
+            foreach (var user in Users)
+            {
+                text += user.ToString();//lista de users
+            }
+            return text;
         }
 
         public void ShowMenu()
