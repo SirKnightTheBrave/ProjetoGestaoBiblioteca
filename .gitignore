@@ -1,0 +1,19 @@
+# Ignorar a pasta de configurações do Visual Studio
+.vs/
+
+# Ignorar pastas de saída de compilação
+bin/
+obj/
+
+# Ignorar arquivos de configuração do Visual Studio
+*.user
+*.suo
+*.userprefs
+
+# Ignorar arquivos temporários e de sistema
+Thumbs.db
+*.log
+*.tmp
+
+# Ignorar dependências (se aplicável)
+node_modules/
