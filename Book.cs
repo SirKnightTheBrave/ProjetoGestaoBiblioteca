@@ -8,8 +8,6 @@ namespace ProjectoGestaoBiblioteca
 {
     internal class Book
     {
-        private bool Loan;
-
         public string Title { get; set; }
         public string Author { get; set; }
         public int PublicationYear { get; set; }
@@ -33,17 +31,9 @@ namespace ProjectoGestaoBiblioteca
             TotalCopies = Copies.Count;
         }
 
-        public bool SetAvailableCopies()
+        public void SetAvailableCopies()
         {
-            if (Loan || AvailableCopies <= 0)
-            {
-                return false;
-            }
-            else
-            {
-                AvailableCopies = 0;
-                return true;
-            }
+            AvailableCopies = Copies.Count(c => !c.IsLoaned);
         }
 
         public string GetInfo(bool getCopiesInfo = true)

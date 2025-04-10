@@ -29,15 +29,10 @@ namespace ProjectoGestaoBiblioteca
 
         public bool Loan()
         {
-            if (IsLoaned)
-            {
-                return false;
-            }
-            else
-            {
-                IsLoaned = true;
-                return true;
-            }
+            if (IsLoaned) return false;
+
+            IsLoaned = true;
+            return true;
         }
 
         public bool Return()

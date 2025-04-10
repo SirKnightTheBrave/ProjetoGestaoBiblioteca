@@ -85,16 +85,18 @@ namespace ProjectoGestaoBiblioteca
         public string BooksToString()
         {
             string text = "Books:\n";
-            foreach (var book in Books)
-            {
-                text += book.ToString();
-            }
-            return text;
+            foreach (var book in Books) text += book.ToString();return text;
         }
 
         public User? FindUser(User user){
             return Users.FirstOrDefault(u => u.Username == user.Username);//método procura o user pelo username
-        } 
+        }
+
+
+        public User? FindUser(string username) //overload para verificar se o username existe
+        {
+            return Users.FirstOrDefault(u => u.Username == username);//método procura o user pelo username
+        }
 
         public bool AddUser(User user)
         {
@@ -110,9 +112,7 @@ namespace ProjectoGestaoBiblioteca
         {
             string text = "Users:\n";
             foreach (var user in Users)
-            {
-                text += user.ToString();//lista de users
-            }
+                text += user.GetInfo();//lista de users
             return text;
         }
 
@@ -122,13 +122,7 @@ namespace ProjectoGestaoBiblioteca
 
             foreach(var book in Books) //para cada livro
                 text += book.GetInfo(true); //buscar a info do livro e das respetivas cópias
-
             return text;
-        }
-
-        public void ShowMenu()
-        {
-            //José
         }
 
     }

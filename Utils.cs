@@ -32,6 +32,30 @@ namespace ProjectoGestaoBiblioteca
 
             return input; //no need for null-forgiving operator?
         }
+        /// <summary>
+        /// Reads a string and validates it using a provided validation function.
+        /// </summary>
+        /// <param name="message">The message to display when asking for input.</param>
+        /// <param name="isValid">A function that takes a string and returns a boolean indicating if the input is valid.</param>
+        /// <returns>A valid string.</returns>
+        public static string ReadValidatedString(string message, Func<string, bool> isValid)
+        {
+            string? input;
+
+            do
+            {
+                Console.Write(message + " ");
+                input = Console.ReadLine();
+
+                if (input == null || !isValid(input))
+                    WriteError("Invalid input. Please try again.");
+                else
+                    break;
+            } while (true);
+
+            return input;
+        }
+
 
         /// <summary>
         /// Reads a decimal.
@@ -89,24 +113,7 @@ namespace ProjectoGestaoBiblioteca
             return value;
         }
 
-        public static void SplashScreen()
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(" ██████╗ ██████╗     ██╗     ██╗██████╗ ██████╗  █████╗ ██████╗ ██╗   ██╗");
-            Console.WriteLine("██╔════╝ ╚════██╗    ██║     ██║██╔══██╗██╔══██╗██╔══██╗██╔══██╗╚██╗ ██╔╝");
-            Console.WriteLine("██║  ███╗ █████╔╝    ██║     ██║██████╔╝██████╔╝███████║██████╔╝ ╚████╔╝ ");
-            Console.WriteLine("██║   ██║ ╚═══██╗    ██║     ██║██╔══██╗██╔══██╗██╔══██║██╔══██╗  ╚██╔╝  ");
-            Console.WriteLine("╚██████╔╝██████╔╝    ███████╗██║██████╔╝██║  ██║██║  ██║██║  ██║   ██║   ");
-            Console.WriteLine(" ╚═════╝ ╚═════╝     ╚══════╝╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ");
-            Console.WriteLine();
-            Console.ForegroundColor = DefaultTextColor;
-        }
 
-        public static void NewConsole()
-        {
-            Console.Clear(); //clear console
-            SplashScreen();
-        }
 
         /// <summary>
         /// Prints error message in red color.
