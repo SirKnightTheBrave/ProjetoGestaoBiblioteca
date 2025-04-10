@@ -84,7 +84,7 @@ namespace ProjectoGestaoBiblioteca
 
         public string BooksToString()
         {
-            string text = "Users:\n";
+            string text = "Books:\n";
             foreach (var book in Books)
             {
                 text += book.ToString();
@@ -113,6 +113,16 @@ namespace ProjectoGestaoBiblioteca
             {
                 text += user.ToString();//lista de users
             }
+            return text;
+        }
+
+        public string GetReport()
+        {
+            string text = "***REPORT***\n";
+
+            foreach(var book in Books) //para cada livro
+                text += book.GetInfo(true); //buscar a info do livro e das respetivas cópias
+
             return text;
         }
 

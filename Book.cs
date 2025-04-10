@@ -46,10 +46,35 @@ namespace ProjectoGestaoBiblioteca
             }
         }
 
-        public override string ToString()
+        public string GetInfo(bool getCopiesInfo = true)
         {
-            return $"Book: {Title}, Author: {Author}, Year: {PublicationYear}," +
-                $"Total copies: {TotalCopies}, Available copies: {AvailableCopies}\n";
+            string text = $"Book: {Title}, Author: {Author}, Year: {PublicationYear}\n";
+
+            if (getCopiesInfo) //se quiser mostrar as cópias
+            {
+                text += $"Total copies: {TotalCopies}, Available copies: {AvailableCopies}:\n";
+                foreach (var copy in Copies)
+                    text += $" - Code: {copy.Code}, Edition: {copy.Edition}, Condition: {copy.Condition}, Is Loaned: {copy.IsLoaned}\n";
+            }
+
+            return text;
         }
+
+        //public enum CopyFilter
+        //{
+        //    All,
+        //    Available,
+        //    Loaned
+        //}
+
+        //public string CopiesToString(CopyFilter filter = CopyFilter.All) //options all, only available or only loaned?
+        //{
+        //    string text = $"Copies ({filter}):";
+        //    foreach (Copy copy in Copies)
+        //    {
+        //        text += copy.ToString();
+        //    }
+        //    return text;
+        //}
     }
 }

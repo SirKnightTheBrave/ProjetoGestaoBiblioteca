@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProjectoGestaoBiblioteca
 {
-    public enum Condition
+    public enum CopyCondition
     {
         Good,
         Fair,

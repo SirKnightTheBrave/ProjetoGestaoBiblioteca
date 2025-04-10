@@ -12,17 +12,17 @@ namespace ProjectoGestaoBiblioteca
         public string Code { get; set; }
         public Book Book { get; set; }
         public int Edition { get; set; }
-        public int EditionYear { get; set; }
+        public CopyCondition Condition { get; set; }
+
         public bool IsLoaned { get; set; }
-        public Condition Condition { get; set; }
+        public User? User { get; set; }
         public DateTime? LoanDate { get; set; }
 
-        public Copy(string code, Book book, int edition, int editionYear, Condition condition)
+        public Copy(string code, Book book, int edition, CopyCondition condition)
         {
             Code = code;
             Book = book;
             Edition = edition;
-            EditionYear = editionYear;
             IsLoaned = false; //por defeito, é falso?
             Condition = condition;
         }
