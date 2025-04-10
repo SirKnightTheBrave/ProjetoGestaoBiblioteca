@@ -6,27 +6,23 @@ using System.Threading.Tasks;
 
 namespace ProjectoGestaoBiblioteca
 {
-    internal class Admin : User
+    internal class LibraryManagment
     {
-        public string Password { get; set; }
+    }
 
-        public Admin(string name, string username, string address, string phone, string password) : base (username, name, address, phone)
-        {
-            Password = password;
-        }
-        public void LoginMenu() 
+        public void LoginMenu()
         {
             Console.WriteLine("Username: ");
-            Username = Console.ReadLine();
+            string username = Console.ReadLine();
             Console.WriteLine("Password: ");
-            Password = Console.ReadLine();
-            if (Username == "admin" && Password == "admin")
+            string password = Console.ReadLine();
+            if (username == "admin" && password == "admin")
             {
                 Console.WriteLine("Login successful!");
                 // Call the method to display the admin menu
                 AdminMenu();
             }
-            else if(Username == "user" && Password == "user")
+            else if (username == "user" && password == "user")
             {
                 Console.WriteLine("Login successful!");
                 // Call the method to display the user menu
@@ -102,6 +98,4 @@ namespace ProjectoGestaoBiblioteca
                     break;
             }
         }
-    }
-}
-
+    } }
