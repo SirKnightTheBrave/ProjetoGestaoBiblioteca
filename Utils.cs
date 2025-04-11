@@ -6,39 +6,19 @@ using System.Threading.Tasks;
 
 namespace ProjectoGestaoBiblioteca
 {
-    internal class Utils //short for Utilities; utility methods that perform common tasks
+    internal static class Utils //short for Utilities; utility methods that perform common tasks
     {
         //global? constants
         public const ConsoleColor DefaultTextColor = ConsoleColor.Gray; //default foreground color
         public const ConsoleColor DefaultBackColor = ConsoleColor.DarkBlue; //default background color
 
         /// <summary>
-        /// Reads a non-empty string.
-        /// </summary>
-        /// <param name="message">The message asking for a non-empty string.</param>
-        /// <returns>A non-empty string.</returns>
-        public static string ReadNonEmptyString(string message)
-        {
-            string? input;
-
-            do
-            {
-                Console.Write(message + " ");
-                input = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(input)) WriteError("You didn't write anything!");
-                else break;
-            }
-            while (true);
-
-            return input; //no need for null-forgiving operator?
-        }
-        /// <summary>
         /// Reads a string and validates it using a provided validation function.
         /// </summary>
         /// <param name="message">The message to display when asking for input.</param>
         /// <param name="isValid">A function that takes a string and returns a boolean indicating if the input is valid.</param>
         /// <returns>A valid string.</returns>
-        public static string ReadValidatedString(string message, Func<string, bool> isValid)
+        public static string ReadValidString(string message, Func<string, bool> isValid)
         {
             string? input;
 
@@ -53,7 +33,7 @@ namespace ProjectoGestaoBiblioteca
                     break;
             } while (true);
 
-            return input;
+            return input; //no need for null-forgiving operator?
         }
 
 

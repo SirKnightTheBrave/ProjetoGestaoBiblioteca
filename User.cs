@@ -10,12 +10,12 @@ namespace ProjectoGestaoBiblioteca
     {
         public string Name { get; set; }
         public string Username { get; set; }
-        public string Address { get; set; }
-        public string Phone { get; set; }
+        public string? Address { get; set; }
+        public string? Phone { get; set; }
         private string Password { get; set; } //segurança, não expor a password
         public bool IsAdmin { get; set; } // Adiciona propriedade IsAdmin para verificar se é admin ou não
 
-        public User(string name, string username, string address, string phone, string password, bool isAdmin)
+        public User(string name, string username, string password, bool isAdmin = false, string? address = null, string? phone = null)
         {
             Name = name;
             Username = username;
@@ -28,7 +28,7 @@ namespace ProjectoGestaoBiblioteca
         public string GetInfo()
         {
             return $"User: {Username}, Name: {Name}, Access level: {(IsAdmin ? "Admin" : "User")}, Address: {Address}, " +
-                $"Phone: {Phone} \n";//criação de string com dados do user para a lista de users (classe library)
+                $"Phone: {Phone} \n"; //criação de string com dados do user para a lista de users (classe library)
         }
 
         public bool CheckPassword(string password)

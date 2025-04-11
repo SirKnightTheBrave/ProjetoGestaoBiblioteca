@@ -6,7 +6,13 @@ Formador: Sara Formoso
 
 Projeto de Gestão de uma Bilbioteca
 
-
+Melhorias:
+- Acesso admin e user
+Vantagens:
+- Password encriptada
+Vantagens: maior segurança
+- Ligação a BD MySQL
+Vantagens: persistência de dados
 
 Grupo:
 -Viviane Dias

@@ -12,6 +12,13 @@ namespace ProjectoGestaoBiblioteca
         public string Code { get; set; }
         public Book Book { get; set; }
         public int Edition { get; set; }
+
+        public enum CopyCondition //enums repetidos em ficheiros diferentes?
+        {
+            Good,
+            Fair,
+            Worn
+        }
         public CopyCondition Condition { get; set; }
 
         public bool IsLoaned { get; set; }

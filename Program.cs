@@ -4,10 +4,13 @@
     {
         static void Main(string[] args)
         {
-            var library = new Library("Group 3 Library", TimeSpan.FromDays(3));
-           //José
-            var libraryManagment = new ConsoleUI(library);
-            libraryManagment.AdminMenu();
+            var library = new Library("CESAE LIBRARY", 1, TimeSpan.FromDays(3)); //1 aluguer por utilizador, 3 dias de aluguer
+
+            var consoleApp = new ConsoleApp(library, ConsoleColor.DarkBlue, ConsoleColor.White);
+
+            consoleApp.Library.AddUser(new User("admin", "admin", "password", true));
+
+            consoleApp.LoginMenu();
 
         }
        
