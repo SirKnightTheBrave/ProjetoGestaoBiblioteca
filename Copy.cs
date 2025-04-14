@@ -54,5 +54,22 @@ namespace ProjectoGestaoBiblioteca
                 return true;
             }
         }
+
+        public void SetLoan(User user, DateTime loanDate)
+        {
+            User = user;
+            LoanDate = loanDate;
+        }
+
+        public string GetLoanInfo()
+        {
+            return $"Loaned to {User.Name} on {LoanDate.Value.ToShortDateString()}.";
+        }
+
+        // public string GetCopyInfo()
+        // {
+           
+        //     return $"Code: {Code}, Book: {Book.Title}, Edition: {Edition}, Condition: {Condition}, Loaned: {IsLoaned}";
+        // }
     }
 }

@@ -191,12 +191,18 @@ namespace ProjectoGestaoBiblioteca
             {
                 case "1":
                     // View books logic
+                    Console.WriteLine(Library.BooksToString());
+                    Console.WriteLine("Press any key to continue...");
                     break;
                 case "2":
                     // Loan book logic
+                    Console.WriteLine("Enter book code to loan:");
+                    string bookCode = Console.ReadLine();
                     break;
                 case "3":
                     // Return book logic
+                    Console.WriteLine("Enter book code to return:");
+                    string returnBookCode = Console.ReadLine();
                     break;
                 case "4":
                     LoginMenu();
