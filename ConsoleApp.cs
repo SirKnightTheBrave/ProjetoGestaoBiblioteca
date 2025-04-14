@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace ProjectoGestaoBiblioteca
 {
@@ -11,12 +13,41 @@ namespace ProjectoGestaoBiblioteca
         public ConsoleColor DefaultForeColor { get; set; } //cor padrão do texto
         public ConsoleColor DefaultBackColor { get; set; } //cor padrão do fundo
         public Library Library { get; private set; }
+        private string ConnectionString { get; set; }
 
-        public ConsoleApp(Library library, ConsoleColor defaultBackColor, ConsoleColor defaultForeColor)
+        public ConsoleApp(Library library, string connectionString, ConsoleColor defaultBackColor, ConsoleColor defaultForeColor)
         {
             Library = library;
+            ConnectionString = connectionString;
             DefaultBackColor = defaultBackColor;
             DefaultForeColor = defaultForeColor;
+
+            SelectBooksDB();
+        }
+
+        private void SelectBooksDB()
+        {
+            using (var connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+                var command = new MySqlCommand("SELECT title, author, publication_year FROM books", connection);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var book = new Book
+                        (
+                            reader.GetString("title"),
+                            reader.GetString("author"),
+                            1900
+                            //reader.GetInt32("publication_year")
+                        );
+
+                        Library.AddBook(book);
+                    }
+                }
+            }
         }
 
         /// <summary>

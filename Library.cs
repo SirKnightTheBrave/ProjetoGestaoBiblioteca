@@ -9,17 +9,17 @@ namespace ProjectoGestaoBiblioteca
     internal class Library
     {
         public string Name { get; set; }
-        public int MaxLoansPerUser { get; set; }
+        public int MaxUserLoans { get; set; }
         public List<Book> Books { get; private set; }
         public List<User> Users { get; private set; }
 
         //TimeSpan para duração de tempo!
         public TimeSpan LoanPeriod { get; set; }
 
-        public Library(string name, int maxLoansPerUser, TimeSpan loanPeriod)
+        public Library(string name, int maxUserLoans, TimeSpan loanPeriod)
         {
             Name = name;
-            MaxLoansPerUser = maxLoansPerUser;
+            MaxUserLoans = maxUserLoans;
             Books = new List<Book>();
             Users = new List<User>();
             LoanPeriod = loanPeriod;

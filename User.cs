@@ -12,7 +12,7 @@ namespace ProjectoGestaoBiblioteca
         public string Username { get; set; }
         public string? Address { get; set; }
         public string? Phone { get; set; }
-        private string Password { get; set; } //segurança, não expor a password
+        private string HashedPassword { get; set; } //segurança, não expor a password
         public bool IsAdmin { get; set; } // Adiciona propriedade IsAdmin para verificar se é admin ou não
 
         public User(string name, string username, string password, bool isAdmin = false, string? address = null, string? phone = null)
@@ -21,7 +21,7 @@ namespace ProjectoGestaoBiblioteca
             Username = username;
             Address = address;
             Phone = phone;
-            Password = password;
+            HashedPassword = password;
             IsAdmin = isAdmin;
         }
 
@@ -33,7 +33,7 @@ namespace ProjectoGestaoBiblioteca
 
         public bool CheckPassword(string password)
         {
-            return Password == password; //verifica se a password é igual à password do user
+            return HashedPassword == password; //verifica se a password é igual à password do user
         }
 
 

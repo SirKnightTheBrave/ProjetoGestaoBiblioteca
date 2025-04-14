@@ -36,6 +36,24 @@ namespace ProjectoGestaoBiblioteca
             return input; //no need for null-forgiving operator?
         }
 
+        //public static bool ReadValidPassword(string message, Func<string, bool> isValid)
+        //{
+        //    string? input;
+
+        //    do
+        //    {
+        //        Console.Write(message + " ");
+        //        input = Console.ReadLine();
+
+        //        if (input == null || !isValid(input))
+        //            WriteError("Invalid input. Please try again.");
+        //        else
+        //            break;
+        //    } while (true);
+
+        //    return input; //no need for null-forgiving operator?
+        //}
+
 
         /// <summary>
         /// Reads a decimal.
