@@ -34,11 +34,13 @@ namespace ProjectoGestaoBiblioteca
             Condition = condition;
         }
 
-        public bool Loan()
+        public bool Loan(User user)
         {
             if (IsLoaned) return false;
 
             IsLoaned = true;
+            User = user;
+            LoanDate = DateTime.UtcNow;
             return true;
         }
 
@@ -51,6 +53,8 @@ namespace ProjectoGestaoBiblioteca
             else
             {
                 IsLoaned = false;
+                User = null;
+                LoanDate = null;
                 return true;
             }
         }

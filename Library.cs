@@ -123,8 +123,9 @@ namespace ProjectoGestaoBiblioteca
         {
             string text = "***REPORT***\n";
 
-            foreach(var book in Books) //para cada livro
-                text += book.GetInfo(true); //buscar a info do livro e das respetivas cópias
+            foreach (var book in Books) //para cada livro
+                if (book.TotalCopies != book.AvailableCopies) //se o total de cópias for diferente do número de cópias disponíveis
+                    text += book.GetInfo(true); //buscar a info do livro e das respetivas cópias
             return text;
         }
 

@@ -50,6 +50,26 @@ namespace ProjectoGestaoBiblioteca
             }
         }
 
+        public bool InsertBookDB(Book book)
+        {
+            using (var connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                string query = "INSERT INTO Books (Title, Author, publication_year) VALUES (@Title, @Author, @PublicationYear)";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Title", book.Title);
+                    command.Parameters.AddWithValue("@Author", book.Author);
+                    command.Parameters.AddWithValue("@PublicationYear", book.PublicationYear);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0; // Return true if a row was inserted
+                }
+            }
+        }
+
         /// <summary>
         /// Reads a string and validates it using a provided validation function.
         /// </summary>
@@ -119,7 +139,7 @@ namespace ProjectoGestaoBiblioteca
             Console.WriteLine($"LOGIN");
 
             var user = ReadValidUser("Username:", Library.FindUser,"Username not found!");
-            var password = Utils.ReadValidString("Password", user.CheckPassword);
+            var password = Utils.ReadValidString("Password:", user.CheckPassword);
             Console.WriteLine("Login successful!");
             if (user.IsAdmin) // Se for admin vai par ao menu administrador
                AdminMenu();
@@ -162,6 +182,7 @@ namespace ProjectoGestaoBiblioteca
                         int PublicationYear =Utils.ReadInt("Publication of Year:");//"Publication Year: ", x => x < 0, "Year must be positive.");
                         Book newBook = new Book(title, author, PublicationYear);
                         Library.AddBook(newBook);
+                        InsertBookDB(newBook);
                         Console.WriteLine("Book registered successfully!");
                         Console.WriteLine("Press any key to continue...");
                         Console.ReadKey();
@@ -217,7 +238,7 @@ namespace ProjectoGestaoBiblioteca
             Console.WriteLine("3. Return Book");
             Console.WriteLine("4. Logout");
             Console.Write("Select an option: ");
-            string choice = Console.ReadLine();
+            string? choice = Console.ReadLine();
             switch (choice)
             {
                 case "1":
