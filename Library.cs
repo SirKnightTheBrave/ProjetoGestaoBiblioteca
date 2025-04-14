@@ -87,8 +87,9 @@ namespace ProjectoGestaoBiblioteca
         public string BooksToString()
         {
             string text = "Books:\n";
-            foreach (var book in Books) text += book.ToString();return text;
+            foreach (var book in Books) text += book.GetInfo();return text;
         }
+        
 
         public User? FindUser(User user){
             return Users.FirstOrDefault(u => u.Username == user.Username);//método procura o user pelo username
@@ -126,6 +127,8 @@ namespace ProjectoGestaoBiblioteca
                 text += book.GetInfo(true); //buscar a info do livro e das respetivas cópias
             return text;
         }
+
+        
 
     }
 }

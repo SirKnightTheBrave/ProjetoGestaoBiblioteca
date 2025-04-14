@@ -66,7 +66,7 @@ namespace ProjectoGestaoBiblioteca
         private User CreateUser()
         {
             Console.WriteLine("Enter user details:");
-            string name = Utils.ReadValidString("Name: ", String.IsNullOrWhiteSpace);
+            string name = Utils.ReadValidString("Name: ", input => !String.IsNullOrWhiteSpace(input));
             Console.Write("Username: ");
             string username = Console.ReadLine();
             Console.Write("Address: ");
@@ -87,28 +87,17 @@ namespace ProjectoGestaoBiblioteca
             Console.WriteLine($"***{Library.Name}***");
             Console.WriteLine($"LOGIN");
 
-            var user = ReadValidUser("Username:", Library.FindUser);
+            var user = ReadValidUser("Username:", Library.FindUser,"Username not found!");
             var password = Utils.ReadValidString("Password", user.CheckPassword);
-            //if (username == "admin" && password == "admin")
-            //{
-            //    Console.WriteLine("Login successful!");
-            //    // Call the method to display the admin menu
-            //    AdminMenu();
-            //}
-            //else if (username == "user" && password == null)
-            //{
-            //    Console.WriteLine("Login successful!");
-            //    // Call the method to display the user menu
-            //    UserMenu();
-            //}
-            //else
-            //{
-            //    Console.WriteLine("Invalid username or password.");
-            //}
+            Console.WriteLine("Login successful!");
+            if (user.IsAdmin) // Se for admin vai par ao menu administrador
+               AdminMenu();
+            else
+               UserMenu();  //Se for user vai para o menu de utilizador
+            
         }
         public void AdminMenu()
-        { 
-
+        {
             do
             {
                 NewConsole();
@@ -135,13 +124,29 @@ namespace ProjectoGestaoBiblioteca
                         Console.ReadKey();
                         break;
                     case "3":
-                        // Register users logic
+                        // Register books logic
+                        Console.WriteLine("Enter book details:");
+                        string title = Utils.ReadValidString("Title: ", input => !String.IsNullOrWhiteSpace(input));
+                        string author = Utils.ReadValidString("Author: ", input => !String.IsNullOrWhiteSpace(input));
+                        int PublicationYear =Utils.ReadInt("Publication of Year:");//"Publication Year: ", x => x < 0, "Year must be positive.");
+                        Book newBook = new Book(title, author, PublicationYear);
+                        Library.AddBook(newBook);
+                        Console.WriteLine("Book registered successfully!");
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
                         break;
                     case "4":
-                        // View all books logic
+                        // View books logic
+                        Console.WriteLine(Library.BooksToString());
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
                         break;
                     case "5":
                         // Loan report logic
+                        Console.WriteLine("Loan Report:");
+                        Console.WriteLine(Library.GetReport());
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
                         break;
                     case "6":
                         LoginMenu();
