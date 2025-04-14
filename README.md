@@ -6,6 +6,8 @@ Formador: Sara Formoso
 
 Projeto de Gestão de uma Bilbioteca
 
+Necessário instalar MySQL.Data package (nuGet).
+
 Melhorias:
 - Acesso admin e user
 Vantagens:
