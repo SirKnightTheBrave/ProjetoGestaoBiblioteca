@@ -31,10 +31,18 @@ CREATE TABLE copies (
     book_id INT NOT NULL,
     edition INT,
     `condition` ENUM('Good', 'Fair', 'Worn'),
-    is_loaned BOOL DEFAULT FALSE,
-    loan_date DATE DEFAULT NULL,
+    is_loaned BOOL DEFAULT FALSE
+);
+
+CREATE TABLE loans (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    copy_id INT NOT NULL,
+    `return_condition` ENUM('Good', 'Fair', 'Worn') DEFAULT NULL,
+    loan_from DATE DEFAULT NULL,
+    loan_to DATE DEFAULT NULL,
     user_id INT DEFAULT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)    
+    FOREIGN KEY (copy_id) REFERENCES copies(id),  
+    FOREIGN KEY (user_id) REFERENCES users(id)   
 );
 
 CREATE TABLE library (

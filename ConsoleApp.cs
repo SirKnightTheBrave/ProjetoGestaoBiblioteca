@@ -40,8 +40,7 @@ namespace ProjectoGestaoBiblioteca
                         (
                             reader.GetString("title"),
                             reader.GetString("author"),
-                            1900
-                            //reader.GetInt32("publication_year")
+                            reader.GetInt32("publication_year")
                         );
 
                         Library.AddBook(book);

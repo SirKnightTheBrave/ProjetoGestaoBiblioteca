@@ -38,7 +38,7 @@ namespace ProjectoGestaoBiblioteca
 
         public string GetInfo(bool getCopiesInfo = true)
         {
-            string text = $"Book: {Title}, Author: {Author}, Year: {PublicationYear}\n";
+            string text = $"\nBook: {Title} \nAuthor: {Author} \nYear: {PublicationYear}\n";
 
             if (getCopiesInfo) //se quiser mostrar as cópias
             {
