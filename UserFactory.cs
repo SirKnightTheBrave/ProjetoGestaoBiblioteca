@@ -1,6 +1,6 @@
 ﻿namespace ProjectoGestaoBiblioteca
 {
-    static class UserFactory
+    class UserFactory
     {
         // deveria estar numa classe userFactory -> possui a logica de como criar users (ver o que é a factory design pattern)
         public static User Create(string name, string username, string password, bool isAdmin = false, string? address = null, string? phone = null, bool hashPassword = true)
