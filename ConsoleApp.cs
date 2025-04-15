@@ -14,6 +14,7 @@ namespace ProjectoGestaoBiblioteca
         public ConsoleColor DefaultBackColor { get; set; } //cor padrão do fundo
         public Library Library { get; private set; }
         private string ConnectionString { get; set; }
+        public User LoggedUser { get; private set; } //utilizador logado
 
         public ConsoleApp(Library library, string connectionString, ConsoleColor defaultBackColor, ConsoleColor defaultForeColor)
         {
@@ -49,6 +50,31 @@ namespace ProjectoGestaoBiblioteca
             }
         }
 
+        private void SelectUsersDB()
+        {
+            using (var connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+                var command = new MySqlCommand("SELECT name, username, password, isAdmin FROM users", connection);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var user = new User
+                        (
+                            reader.GetString("name"),
+                            reader.GetString("username"),
+                            reader.GetString("password"),
+                            reader.GetBoolean("isAdmin")    
+                        );
+
+                        Library.AddUser(user);
+                    }
+                }
+            }
+        }
+
         public bool InsertBookDB(Book book)
         {
             using (var connection = new MySqlConnection(ConnectionString))
@@ -62,6 +88,27 @@ namespace ProjectoGestaoBiblioteca
                     command.Parameters.AddWithValue("@Title", book.Title);
                     command.Parameters.AddWithValue("@Author", book.Author);
                     command.Parameters.AddWithValue("@PublicationYear", book.PublicationYear);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0; // Return true if a row was inserted
+                }
+            }
+        }
+
+        public bool InsertUserDB(User user)
+        {
+            using (var connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                string query = "INSERT INTO Users (name, username, password, isAdmin) VALUES (@Name, @Username, @Password, @IsAdmin)";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Name", user.Name);
+                    command.Parameters.AddWithValue("@Username", user.Username);
+                    command.Parameters.AddWithValue("@Password", user.CheckPassword);
+                    command.Parameters.AddWithValue("@IsAdmin", user.IsAdmin);
 
                     int rowsAffected = command.ExecuteNonQuery();
                     return rowsAffected > 0; // Return true if a row was inserted
@@ -140,6 +187,7 @@ namespace ProjectoGestaoBiblioteca
             var user = ReadValidUser("Username:", Library.FindUser,"Username not found!");
             var password = Utils.ReadValidString("Password:", user.CheckPassword);
             Console.WriteLine("Login successful!");
+            LoggedUser = user; // Define o utilizador logado
             if (user.IsAdmin) // Se for admin vai par ao menu administrador
                AdminMenu();
             else
@@ -233,7 +281,7 @@ namespace ProjectoGestaoBiblioteca
         {
             Console.WriteLine("User Menu:");
             Console.WriteLine("1. View Books");
-            Console.WriteLine("2. Loan Book");
+            Console.WriteLine("2. Search and Loan Book");
             Console.WriteLine("3. Return Book");
             Console.WriteLine("4. Logout");
             Console.Write("Select an option: ");
@@ -242,13 +290,36 @@ namespace ProjectoGestaoBiblioteca
             {
                 case "1":
                     // View books logic
+                    Console.WriteLine(Library.BooksToString());
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
                     break;
                 case "2":
-                    // Loan book logic
+                    //Search and Loan book logic
+                    Console.WriteLine("Enter book title or author name:");
+                    string search = Console.ReadLine();
+                    var foundBooks = Library.SearchBook(search);
+                    Console.WriteLine(Utils.ListToString(foundBooks, "Books Found"));
+                    if (foundBooks.Count  == 0) break;
+                    else if(foundBooks.Count == 1 && foundBooks[0].AvailableCopies > 0)
+                    {
+                        var book = foundBooks[0];
+                        Console.WriteLine($"Do you want to loan it? (y/n)");
+                        string answer = Console.ReadLine();
+                        if (answer.ToLower() == "y")
+                        {
+                            // Loan book logic
+                            // Assuming the first copy is available
+                            book.LoanCopy(LoggedUser); // Loan the copy to the user
+                            Console.WriteLine($"Book {book.Title} successfully loaned!");
+                        }
+                    }
                     break;
                 case "3":
                     // Return book logic
+                    
                     break;
+
                 case "4":
                     LoginMenu();
                     break;
@@ -256,6 +327,7 @@ namespace ProjectoGestaoBiblioteca
                     Console.WriteLine("Invalid choice. Please try again.");
                     break;
             }
+            Utils.WaitForKeyPress();
         }
     }
 }

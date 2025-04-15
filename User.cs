@@ -14,7 +14,8 @@ namespace ProjectoGestaoBiblioteca
         public string? Phone { get; set; }
         private string HashedPassword { get; set; } //segurança, não expor a password
         public bool IsAdmin { get; set; } // Adiciona propriedade IsAdmin para verificar se é admin ou não
-
+        // public bool IsBlocked { get; set; } // Adiciona propriedade IsBlocked para verificar se o user está bloqueado ou não
+        
         public User(string name, string username, string password, bool isAdmin = false, string? address = null, string? phone = null)
         {
             Name = name;

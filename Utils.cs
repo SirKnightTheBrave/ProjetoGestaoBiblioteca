@@ -132,5 +132,23 @@ namespace ProjectoGestaoBiblioteca
             Console.ForegroundColor = DefaultTextColor;
             Console.BackgroundColor = DefaultBackColor;
         }
+        public static string ListToString<T>(List<T>? list, string listName)
+        {
+            string text = $"***{listName}***\n";
+
+            if (list == null || list.Count == 0)
+                return "[Empty]";
+
+            foreach (var item in list)
+            {
+                text += item?.ToString() + "\n";
+            }
+            return text;
+        }
+        public static void WaitForKeyPress(string message = "Press any key to continue...")
+        {
+            Console.WriteLine(message);
+            Console.ReadKey(true);
+        }
     }
 }
