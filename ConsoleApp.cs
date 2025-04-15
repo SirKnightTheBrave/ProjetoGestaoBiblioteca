@@ -55,18 +55,19 @@ namespace ProjectoGestaoBiblioteca
             using (var connection = new MySqlConnection(ConnectionString))
             {
                 connection.Open();
-                var command = new MySqlCommand("SELECT name, username, password, isAdmin FROM users", connection);
+                var command = new MySqlCommand("SELECT name, username, password, isAdmin, address, phone FROM users", connection);
 
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        var user = new User
-                        (
+                        var user = new User(
                             reader.GetString("name"),
                             reader.GetString("username"),
                             reader.GetString("password"),
-                            reader.GetBoolean("isAdmin")    
+                            reader.GetBoolean("isAdmin"),
+                            reader.GetString("address"),
+                            reader.GetString("phone")
                         );
 
                         Library.AddUser(user);
@@ -101,14 +102,16 @@ namespace ProjectoGestaoBiblioteca
             {
                 connection.Open();
 
-                string query = "INSERT INTO Users (name, username, password, isAdmin) VALUES (@Name, @Username, @Password, @IsAdmin)";
+                string query = "INSERT INTO Users (name, username, password, isAdmin, address, phone) VALUES (@Name, @Username, @Password, @IsAdmin, @Address, @Phone)";
 
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Name", user.Name);
                     command.Parameters.AddWithValue("@Username", user.Username);
-                    command.Parameters.AddWithValue("@Password", user.CheckPassword);
+                    command.Parameters.AddWithValue("@Password", user.HashedPassword);
                     command.Parameters.AddWithValue("@IsAdmin", user.IsAdmin);
+                    command.Parameters.AddWithValue("@Address", user.Address);
+                    command.Parameters.AddWithValue("@Phone", user.Phone);
 
                     int rowsAffected = command.ExecuteNonQuery();
                     return rowsAffected > 0; // Return true if a row was inserted
@@ -160,7 +163,7 @@ namespace ProjectoGestaoBiblioteca
             return result!;
         }
 
-        private User CreateUser()
+        private void CreateUser()
         {
             Console.WriteLine("Enter user details:");
             string name = Utils.ReadValidString("Name: ", input => !String.IsNullOrWhiteSpace(input));
@@ -175,7 +178,10 @@ namespace ProjectoGestaoBiblioteca
             Console.Write("Is Admin (true/false): ");
             bool isAdmin = bool.Parse(Console.ReadLine());
 
-            return new User(name, username, password, isAdmin, address, phone);
+            User user = UserFactory.Create(name, username, password, isAdmin, address, phone);
+
+            Library.AddUser(user);
+            InsertUserDB(user);
         }
 
         public void LoginMenu()
@@ -212,8 +218,7 @@ namespace ProjectoGestaoBiblioteca
                 {
                     case "1":
                         // Add user logic
-                        User newUser = CreateUser();
-                        Library.AddUser(newUser);
+                        CreateUser();
                         break;
                     case "2":
                         // View user logic
