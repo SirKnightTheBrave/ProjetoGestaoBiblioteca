@@ -49,6 +49,31 @@ namespace ProjectoGestaoBiblioteca
             }
         }
 
+        private void SelectUsersDB()
+        {
+            using (var connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+                var command = new MySqlCommand("SELECT name, username, password, isAdmin FROM users", connection);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var user = new User
+                        (
+                            reader.GetString("name"),
+                            reader.GetString("username"),
+                            reader.GetString("password"),
+                            reader.GetBoolean("isAdmin")    
+                        );
+
+                        Library.AddUser(user);
+                    }
+                }
+            }
+        }
+
         public bool InsertBookDB(Book book)
         {
             using (var connection = new MySqlConnection(ConnectionString))
@@ -62,6 +87,27 @@ namespace ProjectoGestaoBiblioteca
                     command.Parameters.AddWithValue("@Title", book.Title);
                     command.Parameters.AddWithValue("@Author", book.Author);
                     command.Parameters.AddWithValue("@PublicationYear", book.PublicationYear);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0; // Return true if a row was inserted
+                }
+            }
+        }
+
+        public bool InsertUserDB(User user)
+        {
+            using (var connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                string query = "INSERT INTO Users (name, username, password, isAdmin) VALUES (@Name, @Username, @Password, @IsAdmin)";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Name", user.Name);
+                    command.Parameters.AddWithValue("@Username", user.Username);
+                    command.Parameters.AddWithValue("@Password", user.CheckPassword);
+                    command.Parameters.AddWithValue("@IsAdmin", user.IsAdmin);
 
                     int rowsAffected = command.ExecuteNonQuery();
                     return rowsAffected > 0; // Return true if a row was inserted
