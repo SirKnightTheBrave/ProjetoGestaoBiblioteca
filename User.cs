@@ -12,7 +12,8 @@ namespace ProjectoGestaoBiblioteca
         public string Username { get; set; }
         public string? Address { get; set; }
         public string? Phone { get; set; }
-        private string HashedPassword { get; set; } //segurança, não expor a password
+        // coloquei public porque a password já está hashed / só não expôr para a interface
+        public string HashedPassword { get; set; } //segurança, não expor a password
         public bool IsAdmin { get; set; } // Adiciona propriedade IsAdmin para verificar se é admin ou não
         // public bool IsBlocked { get; set; } // Adiciona propriedade IsBlocked para verificar se o user está bloqueado ou não
         
@@ -34,7 +35,7 @@ namespace ProjectoGestaoBiblioteca
 
         public bool CheckPassword(string password)
         {
-            return HashedPassword == password; //verifica se a password é igual à password do user
+            return HashedPassword == password.GetHashCode().ToString(); //verifica se a password é igual à password do user
         }
 
 
