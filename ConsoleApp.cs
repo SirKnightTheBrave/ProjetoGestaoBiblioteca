@@ -331,13 +331,13 @@ namespace ProjectoGestaoBiblioteca
                     }
                     break;
                 case "3":
-                    // Return book logic
-                    if (LoggedUser.CurrentLoans.Count == 0)
+                        // Return book logic
+                        if (LoggedUser.CurrentLoans.Count == 0)
                         {
                             Console.WriteLine("You have no books to return.");
                             break;
                         }
-                    else if (LoggedUser.CurrentLoans.Count == 1)
+                        else if (LoggedUser.CurrentLoans.Count == 1)
                         {
                             Console.WriteLine("You have one book to return:");
                             Console.WriteLine(LoggedUser.CurrentLoans[0].ToString());
@@ -348,8 +348,9 @@ namespace ProjectoGestaoBiblioteca
                                 Library.ReturnCopy(LoggedUser, LoggedUser.CurrentLoans[0]);
                                 Console.WriteLine("Book returned successfully!");
                             }
+                            break;
                         }
-                    else if (LoggedUser.CurrentLoans.Count > 1)
+                        else if (LoggedUser.CurrentLoans.Count > 1)
                         {
                             Console.WriteLine("You have multiple books to return:");
                             Console.WriteLine(Utils.ListToString(LoggedUser.CurrentLoans, "Books to return"));
@@ -364,15 +365,17 @@ namespace ProjectoGestaoBiblioteca
                                 {
                                     Library.ReturnCopy(LoggedUser, bookToReturn);
                                     Console.WriteLine("Book returned successfully!");
+                                    break;
                                 }
                             }
                             else
                             {
                                 Console.WriteLine("Book not found in your current loans.");
+                                break;
                             }
-                            break;
-
-                case "4":
+                        }
+                        break;
+                    case "4":
                     flag = false;
                     break;
                 default:

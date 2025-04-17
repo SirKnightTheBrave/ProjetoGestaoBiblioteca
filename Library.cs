@@ -147,8 +147,25 @@ namespace ProjectoGestaoBiblioteca
                     text += book.ToString(); //buscar a info do livro e das respetivas cópias
             return text;
         }
+        public void RemoveUser(User user)
+        {
+            Users.Remove(user);
+        }
 
-        
+        public bool ReturnCopy(User user, Copy copy)
+        {
+            // Check if the copy is loaned and the user is the one who loaned it
+            if (copy.IsLoaned && copy.LoanedTo == user)
+            {
+                copy.Return();
+                copy.Book.SetAvailableCopies();
+                return true; // Return successful
+            }
+
+            return false; // Return failed (either not loaned or wrong user)
+        }
+
+
 
     }
 }
