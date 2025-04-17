@@ -22,7 +22,7 @@ namespace ProjectoGestaoBiblioteca
         public CopyCondition Condition { get; set; }
 
         public bool IsLoaned { get; set; }
-        public User? User { get; set; }
+        public User? LoanedTo { get; set; }
         public DateTime? LoanDate { get; set; }
 
         public Copy(string code, Book book, int edition, CopyCondition condition)
@@ -39,8 +39,9 @@ namespace ProjectoGestaoBiblioteca
             if (IsLoaned) return false;
 
             IsLoaned = true;
-            User = user;
+            LoanedTo = user;
             LoanDate = DateTime.UtcNow;
+           
             return true;
         }
 
@@ -53,7 +54,7 @@ namespace ProjectoGestaoBiblioteca
             else
             {
                 IsLoaned = false;
-                User = null;
+                LoanedTo = null;
                 LoanDate = null;
                 return true;
             }

@@ -9,7 +9,8 @@
 
             var consoleApp = new ConsoleApp(library, connectionString, ConsoleColor.DarkBlue, ConsoleColor.White);
 
-            consoleApp.Library.AddUser(new User("admin", "admin", "password", true));
+            consoleApp.Library.AddUser(UserFactory.Create("admin", "admin", "password",true));
+            consoleApp.Library.AddUser(UserFactory.Create("user", "user", "password", false));
 
             consoleApp.LoginMenu();
 

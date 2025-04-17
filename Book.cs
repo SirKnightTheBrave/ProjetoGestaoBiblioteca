@@ -11,7 +11,7 @@ namespace ProjectoGestaoBiblioteca
         public string Title { get; set; }
         public string Author { get; set; }
         public int PublicationYear { get; set; }
-        public List<Copy> Copies { get; set; }
+        public List<Copy> Copies { get;private set; }
 
         public int TotalCopies { get; private set; }
         public int AvailableCopies { get; private set; }
@@ -36,32 +36,18 @@ namespace ProjectoGestaoBiblioteca
             AvailableCopies = Copies.Count(c => !c.IsLoaned);
         }
 
-        public string GetInfo(bool getCopiesInfo = true)
+        public override string ToString()
         {
-            string text = $"\nBook: {Title} \nAuthor: {Author} \nYear: {PublicationYear}\n";
-
-            if (getCopiesInfo) //se quiser mostrar as cópias
-            {
-                text += $"Total copies: {TotalCopies}, Available copies: {AvailableCopies}:\n";
-                foreach (var copy in Copies)
-                    text += $" - Code: {copy.Code}, Edition: {copy.Edition}, Condition: {copy.Condition}, Is Loaned: {copy.IsLoaned}\n";
-            }
-
-            return text;
+            return $"\nBook: {Title} \nAuthor: {Author} \nYear: {PublicationYear}\n" +
+                $"Total copies: {TotalCopies}, Available copies: {AvailableCopies}:\n";
         }
 
-        public bool LoanCopy(User user)
+        public Copy? FindFirstAvailableCopy(User user)
         {
-            var copy = Copies.FirstOrDefault(c => !c.IsLoaned);
-            if (copy != null)
-            {
-                copy.Loan(user); // Mark the copy as returned
-                AvailableCopies--; // Update available copies
-                return true;
-            }
-            return false; // No available copies
+           return Copies.FirstOrDefault(c => !c.IsLoaned);
         }
 
+        
         //public enum CopyFilter
         //{
         //    All,

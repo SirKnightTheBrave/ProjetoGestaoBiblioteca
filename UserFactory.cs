@@ -8,7 +8,7 @@
             // hash password se não tiver hashed (registo)
             // não fazer hash se já estiver (carregamento da BD no startup)
             password = hashPassword ? password.GetHashCode().ToString() : password;
-            return new User(name, username, password, isAdmin, address, phone);
+            return new User(name, username, password, address, phone, isAdmin);
         }
     }
 }

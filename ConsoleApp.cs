@@ -14,19 +14,21 @@ namespace ProjectoGestaoBiblioteca
         public ConsoleColor DefaultBackColor { get; set; } //cor padrão do fundo
         public Library Library { get; private set; }
         private string ConnectionString { get; set; }
+        public DBContext DBContext { get; private set; } //contexto da base de dados
         public User LoggedUser { get; private set; } //utilizador logado
 
         public ConsoleApp(Library library, string connectionString, ConsoleColor defaultBackColor, ConsoleColor defaultForeColor)
         {
             Library = library;
+            //DBContext = new DBContext(connectionString); //contexto da base de dados
             ConnectionString = connectionString;
             DefaultBackColor = defaultBackColor;
             DefaultForeColor = defaultForeColor;
 
-            SelectBooksDB();
+           SelectBooksDB(); //carregar livros da BD
+           SelectUsersDB(); // carregar utilizadores da BD
         }
-
-        private void SelectBooksDB()
+        internal void SelectBooksDB()
         {
             using (var connection = new MySqlConnection(ConnectionString))
             {
@@ -50,7 +52,7 @@ namespace ProjectoGestaoBiblioteca
             }
         }
 
-        private void SelectUsersDB()
+        internal void SelectUsersDB()
         {
             using (var connection = new MySqlConnection(ConnectionString))
             {
@@ -65,9 +67,9 @@ namespace ProjectoGestaoBiblioteca
                             reader.GetString("name"),
                             reader.GetString("username"),
                             reader.GetString("password"),
-                            reader.GetBoolean("isAdmin"),
                             reader.GetString("address"),
-                            reader.GetString("phone")
+                            reader.GetString("phone"),
+                            reader.GetBoolean("isAdmin")
                         );
 
                         Library.AddUser(user);
@@ -75,6 +77,8 @@ namespace ProjectoGestaoBiblioteca
                 }
             }
         }
+
+
 
         public bool InsertBookDB(Book book)
         {
@@ -202,6 +206,7 @@ namespace ProjectoGestaoBiblioteca
         }
         public void AdminMenu()
         {
+            bool flag = true;
             do
             {
                 NewConsole();
@@ -253,14 +258,14 @@ namespace ProjectoGestaoBiblioteca
                         Console.ReadKey();
                         break;
                     case "6":
-                        LoginMenu();
+                        flag = false;
                         break;
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
                         break;
                 }
-            } while (true);
-            
+            } while (flag);
+            LoginMenu();
 
         }
         public void SplashScreen()
@@ -284,14 +289,19 @@ namespace ProjectoGestaoBiblioteca
         }
         public void UserMenu()
         {
-            Console.WriteLine("User Menu:");
-            Console.WriteLine("1. View Books");
-            Console.WriteLine("2. Search and Loan Book");
-            Console.WriteLine("3. Return Book");
-            Console.WriteLine("4. Logout");
-            Console.Write("Select an option: ");
-            string? choice = Console.ReadLine();
-            switch (choice)
+            bool flag = true;
+            do 
+            {
+                NewConsole();
+                Console.WriteLine("User Menu:");
+                Console.WriteLine("1. View Books");
+                Console.WriteLine("2. Search and Loan Book");
+                Console.WriteLine("3. Return Book");
+                Console.WriteLine("4. Logout");
+                Console.Write("Select an option: ");
+                string? choice = Console.ReadLine();
+            
+                switch (choice)
             {
                 case "1":
                     // View books logic
@@ -315,24 +325,63 @@ namespace ProjectoGestaoBiblioteca
                         {
                             // Loan book logic
                             // Assuming the first copy is available
-                            book.LoanCopy(LoggedUser); // Loan the copy to the user
+                            Library.LoanCopy(LoggedUser, book); // Loan the copy to the user
                             Console.WriteLine($"Book {book.Title} successfully loaned!");
                         }
                     }
                     break;
                 case "3":
                     // Return book logic
-                    
-                    break;
+                    if (LoggedUser.CurrentLoans.Count == 0)
+                        {
+                            Console.WriteLine("You have no books to return.");
+                            break;
+                        }
+                    else if (LoggedUser.CurrentLoans.Count == 1)
+                        {
+                            Console.WriteLine("You have one book to return:");
+                            Console.WriteLine(LoggedUser.CurrentLoans[0].ToString());
+                            Console.WriteLine("Do you want to return it? (y/n)");
+                            string answer = Console.ReadLine();
+                            if (answer.ToLower() == "y")
+                            {
+                                Library.ReturnCopy(LoggedUser, LoggedUser.CurrentLoans[0]);
+                                Console.WriteLine("Book returned successfully!");
+                            }
+                        }
+                    else if (LoggedUser.CurrentLoans.Count > 1)
+                        {
+                            Console.WriteLine("You have multiple books to return:");
+                            Console.WriteLine(Utils.ListToString(LoggedUser.CurrentLoans, "Books to return"));
+                            Console.WriteLine("Enter the title of the book you want to return:");
+                            string title = Console.ReadLine();
+                            var bookToReturn = LoggedUser.CurrentLoans.FirstOrDefault(b => b.Book.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+                            if (bookToReturn != null)
+                            {
+                                Console.WriteLine($"Do you want to return {bookToReturn.Book.Title}? (y/n)");
+                                string answer = Console.ReadLine();
+                                if (answer.ToLower() == "y")
+                                {
+                                    Library.ReturnCopy(LoggedUser, bookToReturn);
+                                    Console.WriteLine("Book returned successfully!");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Book not found in your current loans.");
+                            }
+                            break;
 
                 case "4":
-                    LoginMenu();
+                    flag = false;
                     break;
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
                     break;
             }
             Utils.WaitForKeyPress();
+            }while (flag);
+            LoginMenu();
         }
     }
 }

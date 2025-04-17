@@ -73,6 +73,7 @@ namespace ProjectoGestaoBiblioteca
                 //adiciona a cópia ao livro
                 copy.Book.Copies.Add(copy);
                 copyAdded = true;
+                copy.Book.SetTotalCopies();
             }
             //senão não adiciona a cópia ao livro porque o código é repetido
             else copyAdded = false;
@@ -94,9 +95,20 @@ namespace ProjectoGestaoBiblioteca
         public string BooksToString()
         {
             string text = "Books:\n";
-            foreach (var book in Books) text += book.GetInfo();return text;
+            foreach (var book in Books) text += book.ToString();
+            return text;
         }
-        
+        public bool LoanCopy(User user, Book book)
+        {
+            var copy = book.FindFirstAvailableCopy(user);
+            if (copy != null)
+            {
+                copy.Loan(user);
+                book.SetAvailableCopies();
+                return true;
+            }
+            return false;
+        }
 
         public User? FindUser(User user){
             return Users.FirstOrDefault(u => u.Username == user.Username);//método procura o user pelo username
@@ -122,7 +134,7 @@ namespace ProjectoGestaoBiblioteca
         {
             string text = "Users:\n";
             foreach (var user in Users)
-                text += user.GetInfo();//lista de users
+                text += user.ToString();//lista de users
             return text;
         }
 
@@ -132,7 +144,7 @@ namespace ProjectoGestaoBiblioteca
 
             foreach (var book in Books) //para cada livro
                 if (book.TotalCopies != book.AvailableCopies) //se o total de cópias for diferente do número de cópias disponíveis
-                    text += book.GetInfo(true); //buscar a info do livro e das respetivas cópias
+                    text += book.ToString(); //buscar a info do livro e das respetivas cópias
             return text;
         }
 
