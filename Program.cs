@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            string connectionString = "server=localhost;database=library_management;user=root;password=;";
+            string connectionString = "server=localhost;database=library_management;user=root;password=mysql;";
             var library = new Library("CESAE LIBRARY", 1, TimeSpan.FromDays(3)); //1 aluguer por utilizador, 3 dias de aluguer
 
             var consoleApp = new ConsoleApp(library, connectionString, ConsoleColor.DarkBlue, ConsoleColor.White);

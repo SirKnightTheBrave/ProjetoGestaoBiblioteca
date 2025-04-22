@@ -50,6 +50,18 @@ namespace ProjectoGestaoBiblioteca
             return text;
         }
 
+        public bool LoanCopy(User user)
+        {
+            var copy = Copies.FirstOrDefault(c => !c.IsLoaned);
+            if (copy != null)
+            {
+                copy.Loan(); // Mark the copy as returned
+                AvailableCopies--; // Update available copies
+                return true;
+            }
+            return false; // No available copies
+        }
+
         //public enum CopyFilter
         //{
         //    All,

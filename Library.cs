@@ -45,6 +45,13 @@ namespace ProjectoGestaoBiblioteca
                 b.Title.Equals(title, StringComparison.OrdinalIgnoreCase) &&
                 b.Author.Equals(author, StringComparison.OrdinalIgnoreCase));
         }
+        public List<Book>? SearchBook(string search)
+        {
+            //procura livros pelo título ou autor
+            return Books.Where(b =>
+                b.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                b.Author.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList(); 
+        }
 
         /// <summary>
         /// Add a book copy
