@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace ProjectoGestaoBiblioteca
 {
@@ -16,14 +17,14 @@ namespace ProjectoGestaoBiblioteca
         public int TotalCopies { get; private set; }
         public int AvailableCopies { get; private set; }
 
-        public Book(string title, string author, int publicationYear)
+        public Book(string title, string author, int publicationYear, int totalCopies = 0, int availableCopies = 0)
         {
             Title = title;
             Author = author;
             PublicationYear = publicationYear;
             Copies = new List<Copy>(); //new List<Copy> { }?
-            TotalCopies = 0;
-            AvailableCopies = 0;
+            TotalCopies = totalCopies;
+            AvailableCopies = availableCopies;
         }
 
         public void SetTotalCopies()
@@ -36,10 +37,14 @@ namespace ProjectoGestaoBiblioteca
             AvailableCopies = Copies.Count(c => !c.IsLoaned);
         }
 
-        public override string ToString()
+        public override string ToString() => $"{Title} of {Author} ({PublicationYear})";
+                    //$"Total copies: {TotalCopies}, Available copies: {AvailableCopies}:\n";
+
+        public string CopiesToString()
         {
-            return $"\nBook: {Title} \nAuthor: {Author} \nYear: {PublicationYear}\n" +
-                $"Total copies: {TotalCopies}, Available copies: {AvailableCopies}:\n";
+            string text = "Copies:\n";
+            foreach (var copy in Copies) text += copy.ToString() + "\n";
+            return text;
         }
 
         public Copy? FindFirstAvailableCopy(User user)

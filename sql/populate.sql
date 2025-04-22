@@ -35,17 +35,17 @@ INSERT INTO copies (`code`, book_id, edition, `condition`, is_loaned) VALUES
 (5005, 5, 2, 'Good', TRUE);
 
 
-INSERT INTO users (`name`, username, address, phone, `password`, isAdmin) VALUES
-('admin', 'admin', '123 Admin St', '123-456-7890', 'password', TRUE),
-('user', 'user', '456 User Ln', '987-654-3210', 'password', FALSE),
-('Alice Johnson', 'alicej', '12 Maple Ave', '555-123-4567', 'alicepass', FALSE),
-('Bob Smith', 'bobsmith', '34 Oak St', '555-987-6543', 'bobsecure', FALSE),
-('Carol White', 'carolw', '56 Pine Rd', '555-321-9876', 'carol123', FALSE),
-('David Brown', 'davidb', '78 Cedar Blvd', '555-654-3210', 'davidpw', FALSE),
-('Eve Adams', 'evea', '90 Birch Way', '555-111-2222', 'evepass', FALSE),
-('Frank Martin', 'frankm', '21 Elm St', '555-333-4444', 'frankpass', FALSE),
-('Grace Lee', 'gracel', '43 Willow Ln', '555-555-6666', 'gracepw', FALSE),
-('Henry Clark', 'henryc', '65 Poplar Ct', '555-777-8888', 'henrypass', FALSE);
+INSERT INTO users (`name`, username, address, phone, password, isAdmin) VALUES
+('admin', 'admin', '123 Admin St', '123-456-7890', '1657723275', TRUE),
+('user', 'user', '456 User Ln', '987-654-3210', '1657723275', FALSE),
+('Alice Johnson', 'alicej', '12 Maple Ave', '555-123-4567', '1657723275', FALSE),
+('Bob Smith', 'bobsmith', '34 Oak St', '555-987-6543', '1657723275', FALSE),
+('Carol White', 'carolw', '56 Pine Rd', '555-321-9876', '1657723275', FALSE),
+('David Brown', 'davidb', '78 Cedar Blvd', '555-654-3210', '1657723275', FALSE),
+('Eve Adams', 'evea', '90 Birch Way', '555-111-2222', '1657723275', FALSE),
+('Frank Martin', 'frankm', '21 Elm St', '555-333-4444', '1657723275', FALSE),
+('Grace Lee', 'gracel', '43 Willow Ln', '555-555-6666', '1657723275', FALSE),
+('Henry Clark', 'henryc', '65 Poplar Ct', '555-777-8888', '1657723275', FALSE);
 
 
 INSERT INTO loans (copy_id, return_condition, loan_from, loan_to, user_id) VALUES

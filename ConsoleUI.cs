@@ -8,7 +8,7 @@ using static System.Reflection.Metadata.BlobBuilder;
 
 namespace ProjectoGestaoBiblioteca
 {
-    internal class ConsoleApp
+    internal class ConsoleUI
     {
         public ConsoleColor DefaultForeColor { get; set; } //cor padrão do texto
         public ConsoleColor DefaultBackColor { get; set; } //cor padrão do fundo
@@ -17,23 +17,23 @@ namespace ProjectoGestaoBiblioteca
         public DBContext DBContext { get; private set; } //contexto da base de dados
         public User LoggedUser { get; private set; } //utilizador logado
 
-        public ConsoleApp(Library library, string connectionString, ConsoleColor defaultBackColor, ConsoleColor defaultForeColor)
+        public ConsoleUI(Library library, string connectionString, ConsoleColor defaultBackColor, ConsoleColor defaultForeColor)
         {
             Library = library;
-            //DBContext = new DBContext(connectionString); //contexto da base de dados
+            DBContext = new DBContext(connectionString); //contexto da base de dados
             ConnectionString = connectionString;
             DefaultBackColor = defaultBackColor;
             DefaultForeColor = defaultForeColor;
 
            SelectBooksDB(); //carregar livros da BD
-           SelectUsersDB(); // carregar utilizadores da BD
+           SelectUsersDB(); //carregar utilizadores da BD
         }
         internal void SelectBooksDB()
         {
             using (var connection = new MySqlConnection(ConnectionString))
             {
                 connection.Open();
-                var command = new MySqlCommand("SELECT title, author, publication_year FROM books", connection);
+                var command = new MySqlCommand("SELECT title, author, publication_year, total_copies, available_copies FROM books", connection);
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -43,7 +43,35 @@ namespace ProjectoGestaoBiblioteca
                         (
                             reader.GetString("title"),
                             reader.GetString("author"),
-                            reader.GetInt32("publication_year")
+                            reader.GetInt32("publication_year"),
+                            reader.GetInt32("total_copies"),
+                            reader.GetInt32("available_copies")
+                        );
+
+                        Library.AddBook(book);
+                    }
+                }
+            }
+        }
+
+        internal void SelectCopiesDB()
+        {
+            using (var connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+                var command = new MySqlCommand("SELECT title, author, publication_year, total_copies, available_copies FROM books", connection);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var book = new Book
+                        (
+                            reader.GetString("title"),
+                            reader.GetString("author"),
+                            reader.GetInt32("publication_year"),
+                            reader.GetInt32("total_copies"),
+                            reader.GetInt32("available_copies")
                         );
 
                         Library.AddBook(book);
@@ -63,14 +91,23 @@ namespace ProjectoGestaoBiblioteca
                 {
                     while (reader.Read())
                     {
-                        var user = new User(
+                        var user = UserFactory.Create(
+
                             reader.GetString("name"),
                             reader.GetString("username"),
                             reader.GetString("password"),
+                            reader.GetBoolean("isAdmin"),
                             reader.GetString("address"),
-                            reader.GetString("phone"),
-                            reader.GetBoolean("isAdmin")
+                            reader.GetString("phone")
                         );
+                        //var user = new User(
+                        //    reader.GetString("name"),
+                        //    reader.GetString("username"),
+                        //    reader.GetString("password"),
+                        //    reader.GetString("address"),
+                        //    reader.GetString("phone"),
+                        //    reader.GetBoolean("isAdmin")
+                        //);
 
                         Library.AddUser(user);
                     }
@@ -106,13 +143,13 @@ namespace ProjectoGestaoBiblioteca
             {
                 connection.Open();
 
-                string query = "INSERT INTO Users (name, username, password, isAdmin, address, phone) VALUES (@Name, @Username, @Password, @IsAdmin, @Address, @Phone)";
+                string query = "INSERT INTO Users (name, username, password, isAdmin, address, phone) VALUES (@Name, @Username, @password, @IsAdmin, @Address, @Phone)";
 
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Name", user.Name);
                     command.Parameters.AddWithValue("@Username", user.Username);
-                    command.Parameters.AddWithValue("@Password", user.HashedPassword);
+                    command.Parameters.AddWithValue("@password", user.HashedPassword);
                     command.Parameters.AddWithValue("@IsAdmin", user.IsAdmin);
                     command.Parameters.AddWithValue("@Address", user.Address);
                     command.Parameters.AddWithValue("@Phone", user.Phone);
@@ -246,7 +283,7 @@ namespace ProjectoGestaoBiblioteca
                         break;
                     case "4":
                         // View books logic
-                        Console.WriteLine(Library.BooksToString());
+                        Console.WriteLine(Library.BooksToString(true));
                         Console.WriteLine("Press any key to continue...");
                         Console.ReadKey();
                         break;
@@ -302,35 +339,35 @@ namespace ProjectoGestaoBiblioteca
                 string? choice = Console.ReadLine();
             
                 switch (choice)
-            {
-                case "1":
-                    // View books logic
-                    Console.WriteLine(Library.BooksToString());
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadKey();
-                    break;
-                case "2":
-                    //Search and Loan book logic
-                    Console.WriteLine("Enter book title or author name:");
-                    string search = Console.ReadLine();
-                    var foundBooks = Library.SearchBook(search);
-                    Console.WriteLine(Utils.ListToString(foundBooks, "Books Found"));
-                    if (foundBooks.Count  == 0) break;
-                    else if(foundBooks.Count == 1 && foundBooks[0].AvailableCopies > 0)
-                    {
-                        var book = foundBooks[0];
-                        Console.WriteLine($"Do you want to loan it? (y/n)");
-                        string answer = Console.ReadLine();
-                        if (answer.ToLower() == "y")
+                {
+                    case "1":
+                        // View books logic
+                        Console.WriteLine(Library.BooksToString());
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                    case "2":
+                        //Search and Loan book logic
+                        Console.WriteLine("Enter book title or author name:");
+                        string? search = Console.ReadLine();
+                        var foundBooks = Library.SearchBook(search);
+                        Console.WriteLine(Utils.ListToString(foundBooks, "Books Found"));
+                    
+                        if (foundBooks?.Count > 0)
                         {
-                            // Loan book logic
-                            // Assuming the first copy is available
-                            Library.LoanCopy(LoggedUser, book); // Loan the copy to the user
-                            Console.WriteLine($"Book {book.Title} successfully loaned!");
+                            int index = Utils.ReadInt("Choose the book index: ", 1, foundBooks.Count);
+                            index--; // Adjust for 0-based index
+                            var book = foundBooks[index];
+                            if (foundBooks[index].AvailableCopies > 0)
+                            {
+                                Library.LoanCopy(LoggedUser, book); // Loan the copy to the user
+                                Console.WriteLine($"Book {book.Title} successfully loaned!");
+                            }
+                            else
+                                Console.WriteLine("No available copies for this book.");
                         }
-                    }
-                    break;
-                case "3":
+                        break;
+                    case "3":
                         // Return book logic
                         if (LoggedUser.CurrentLoans.Count == 0)
                         {
@@ -376,14 +413,15 @@ namespace ProjectoGestaoBiblioteca
                         }
                         break;
                     case "4":
-                    flag = false;
-                    break;
-                default:
-                    Console.WriteLine("Invalid choice. Please try again.");
-                    break;
-            }
-            Utils.WaitForKeyPress();
-            }while (flag);
+                        flag = false;
+                        break;
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again.");
+                        break;
+                    }
+                    Utils.WaitForKeyPress();
+            } while (flag);
+
             LoginMenu();
         }
     }

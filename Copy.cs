@@ -59,5 +59,10 @@ namespace ProjectoGestaoBiblioteca
                 return true;
             }
         }
+
+        public override string ToString()
+        {
+            return $"Edition: {Edition}, Condition: {Condition}, Loaned: {(IsLoaned? "True" : "False")}";
+        }
     }
 }

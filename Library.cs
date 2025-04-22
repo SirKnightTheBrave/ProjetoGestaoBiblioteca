@@ -92,10 +92,14 @@ namespace ProjectoGestaoBiblioteca
             return null;
         }
 
-        public string BooksToString()
+        public string BooksToString(bool withCopies = false)
         {
             string text = "Books:\n";
-            foreach (var book in Books) text += book.ToString();
+            foreach (var book in Books)
+            {
+                text += book.ToString() + "\n";
+                text += book.CopiesToString() + "\n";
+            }
             return text;
         }
         public bool LoanCopy(User user, Book book)
@@ -104,6 +108,7 @@ namespace ProjectoGestaoBiblioteca
             if (copy != null)
             {
                 copy.Loan(user);
+                user.AddLoan(copy);
                 book.SetAvailableCopies();
                 return true;
             }
@@ -158,6 +163,7 @@ namespace ProjectoGestaoBiblioteca
             if (copy.IsLoaned && copy.LoanedTo == user)
             {
                 copy.Return();
+                user.RemoveLoan(copy);
                 copy.Book.SetAvailableCopies();
                 return true; // Return successful
             }

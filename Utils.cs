@@ -137,11 +137,12 @@ namespace ProjectoGestaoBiblioteca
             string text = $"***{listName}***\n";
 
             if (list == null || list.Count == 0)
-                return "[Empty]";
-
+                return text + "[Empty]";
+            int i = 1;
             foreach (var item in list)
             {
-                text += item?.ToString() + "\n";
+                text += $"{i} - " + item?.ToString() + "\n";
+                i++;
             }
             return text;
         }
