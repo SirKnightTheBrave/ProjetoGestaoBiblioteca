@@ -149,7 +149,16 @@ namespace ProjectoGestaoBiblioteca
 
             foreach (var book in Books) //para cada livro
                 if (book.TotalCopies != book.AvailableCopies) //se o total de cópias for diferente do número de cópias disponíveis
-                    text += book.ToString(); //buscar a info do livro e das respetivas cópias
+                { 
+                    text += book.ToString()+"\n";//buscar a info do livro e das respetivas cópias
+                    foreach(var copy in book.Copies)
+                    {
+                        if (copy.IsLoaned)
+                        {
+                            text += $"  - Code: {copy.Code} (Loaned to: {copy.LoanedTo?.Username})\n";
+                        }
+                    }
+                }
             return text;
         }
         public void RemoveUser(User user)

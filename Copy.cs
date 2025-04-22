@@ -62,7 +62,11 @@ namespace ProjectoGestaoBiblioteca
 
         public override string ToString()
         {
-            return $"Edition: {Edition}, Condition: {Condition}, Loaned: {(IsLoaned? "True" : "False")}";
+            return $"Title: {Book.Title}, Edition: {Edition}, Condition: {Condition}, Loaned: {(IsLoaned? "True" : "False")}";
         }
+        //public string ToStringWithoutBook()
+        //{
+        //    return $"Code: {Code}, Edition: {Edition}, Condition: {Condition}, Loaned: {(IsLoaned ? "True" : "False")}";
+        //}
     }
 }

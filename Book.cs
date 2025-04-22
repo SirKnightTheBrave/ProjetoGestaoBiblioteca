@@ -52,7 +52,7 @@ namespace ProjectoGestaoBiblioteca
            return Copies.FirstOrDefault(c => !c.IsLoaned);
         }
 
-        
+
         //public enum CopyFilter
         //{
         //    All,
@@ -69,5 +69,11 @@ namespace ProjectoGestaoBiblioteca
         //    }
         //    return text;
         //}
+        public void AddCopy(Copy copy)
+        {
+            Copies.Add(copy);
+            SetTotalCopies();
+            SetAvailableCopies();
+        }
     }
 }

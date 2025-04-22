@@ -15,7 +15,7 @@ namespace ProjectoGestaoBiblioteca
         public Library Library { get; private set; }
         private string ConnectionString { get; set; }
         public DBContext DBContext { get; private set; } //contexto da base de dados
-        public User LoggedUser { get; private set; } //utilizador logado
+        public User? LoggedUser { get; private set; } //utilizador logado
 
         public ConsoleUI(Library library, string connectionString, ConsoleColor defaultBackColor, ConsoleColor defaultForeColor)
         {
@@ -27,6 +27,7 @@ namespace ProjectoGestaoBiblioteca
 
            SelectBooksDB(); //carregar livros da BD
            SelectUsersDB(); //carregar utilizadores da BD
+            //Library.Books[0].AddCopy(new Copy("1001", Library.Books[0], 1, Copy.CopyCondition.Good)); //adicionar uma cópia do primeiro livro para teste
         }
         internal void SelectBooksDB()
         {
@@ -98,7 +99,8 @@ namespace ProjectoGestaoBiblioteca
                             reader.GetString("password"),
                             reader.GetBoolean("isAdmin"),
                             reader.GetString("address"),
-                            reader.GetString("phone")
+                            reader.GetString("phone"),
+                            true // Não fazer hash aqui, pois já está na base de dados
                         );
                         //var user = new User(
                         //    reader.GetString("name"),
@@ -219,7 +221,7 @@ namespace ProjectoGestaoBiblioteca
             Console.Write("Is Admin (true/false): ");
             bool isAdmin = bool.Parse(Console.ReadLine());
 
-            User user = UserFactory.Create(name, username, password, isAdmin, address, phone);
+            User user = UserFactory.Create(name, username, password, isAdmin, address, phone, true);
 
             Library.AddUser(user);
             InsertUserDB(user);
@@ -372,44 +374,40 @@ namespace ProjectoGestaoBiblioteca
                         if (LoggedUser.CurrentLoans.Count == 0)
                         {
                             Console.WriteLine("You have no books to return.");
-                            break;
+                            
                         }
                         else if (LoggedUser.CurrentLoans.Count == 1)
                         {
-                            Console.WriteLine("You have one book to return:");
+                            Console.WriteLine("You have one copy to return:");
                             Console.WriteLine(LoggedUser.CurrentLoans[0].ToString());
                             Console.WriteLine("Do you want to return it? (y/n)");
                             string answer = Console.ReadLine();
                             if (answer.ToLower() == "y")
                             {
                                 Library.ReturnCopy(LoggedUser, LoggedUser.CurrentLoans[0]);
-                                Console.WriteLine("Book returned successfully!");
+                                Console.WriteLine("Copy returned successfully!");
                             }
-                            break;
+                            
                         }
                         else if (LoggedUser.CurrentLoans.Count > 1)
                         {
-                            Console.WriteLine("You have multiple books to return:");
-                            Console.WriteLine(Utils.ListToString(LoggedUser.CurrentLoans, "Books to return"));
-                            Console.WriteLine("Enter the title of the book you want to return:");
-                            string title = Console.ReadLine();
-                            var bookToReturn = LoggedUser.CurrentLoans.FirstOrDefault(b => b.Book.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
-                            if (bookToReturn != null)
+                            Console.WriteLine("You have multiple copies to return:");
+                            Console.WriteLine(Utils.ListToString(LoggedUser.CurrentLoans, "Copies to return"));
+                            int index = Utils.ReadInt("Choose the copy index: ", 1, LoggedUser.CurrentLoans.Count);
+                            index--; // Adjust for 0-based index
+                            var copyToReturn = LoggedUser.CurrentLoans[index];
+                            if (copyToReturn != null)
                             {
-                                Console.WriteLine($"Do you want to return {bookToReturn.Book.Title}? (y/n)");
+                                Console.WriteLine($"Do you want to return {copyToReturn.Book.Title}? (y/n)");
                                 string answer = Console.ReadLine();
                                 if (answer.ToLower() == "y")
                                 {
-                                    Library.ReturnCopy(LoggedUser, bookToReturn);
-                                    Console.WriteLine("Book returned successfully!");
-                                    break;
+                                    Library.ReturnCopy(LoggedUser, copyToReturn);
+                                    Console.WriteLine("Copy returned successfully!");
+                                   
                                 }
                             }
-                            else
-                            {
-                                Console.WriteLine("Book not found in your current loans.");
-                                break;
-                            }
+                           
                         }
                         break;
                     case "4":
