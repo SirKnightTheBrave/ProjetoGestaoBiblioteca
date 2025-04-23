@@ -4,7 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using Dapper;
 using static System.Reflection.Metadata.BlobBuilder;
+using System.Reflection;
+using Org.BouncyCastle.Asn1.X509;
+using System.Data;
 
 namespace ProjectoGestaoBiblioteca
 {
@@ -14,21 +18,31 @@ namespace ProjectoGestaoBiblioteca
         public ConsoleColor DefaultBackColor { get; set; } //cor padrão do fundo
         public Library Library { get; private set; }
         private string ConnectionString { get; set; }
-        public DBContext DBContext { get; private set; } //contexto da base de dados
+        //public DBContext DBContext { get; private set; } //contexto da base de dados
         public User? LoggedUser { get; private set; } //utilizador logado
 
         public ConsoleUI(Library library, string connectionString, ConsoleColor defaultBackColor, ConsoleColor defaultForeColor)
         {
             Library = library;
-            DBContext = new DBContext(connectionString); //contexto da base de dados
+            //DBContext = new DBContext(connectionString); //contexto da base de dados
             ConnectionString = connectionString;
             DefaultBackColor = defaultBackColor;
             DefaultForeColor = defaultForeColor;
 
            SelectBooksDB(); //carregar livros da BD
            SelectUsersDB(); //carregar utilizadores da BD
-            //Library.Books[0].AddCopy(new Copy("1001", Library.Books[0], 1, Copy.CopyCondition.Good)); //adicionar uma cópia do primeiro livro para teste
+           SelectCopiesDB();
+           Library.Books[0].AddCopy(new Copy("1001", Library.Books[0], 1, Copy.CopyCondition.Good)); //adicionar uma cópia do primeiro livro para teste
         }
+
+        //nonquery: sem ser select? using funciona sem {}?
+        public int ExecuteNonQuery(string query, object? parameters = null)
+        {
+            using var connection = new MySqlConnection(ConnectionString);
+            connection.Open();
+            return connection.Execute(query, parameters);
+        }
+
         internal void SelectBooksDB()
         {
             using (var connection = new MySqlConnection(ConnectionString))
@@ -60,26 +74,26 @@ namespace ProjectoGestaoBiblioteca
             using (var connection = new MySqlConnection(ConnectionString))
             {
                 connection.Open();
-                var command = new MySqlCommand("SELECT title, author, publication_year, total_copies, available_copies FROM books", connection);
-
+                var command = new MySqlCommand("SELECT code, title, author, edition, `condition` FROM copies INNER JOIN books ON books.id = copies.book_id", connection);
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        var book = new Book
-                        (
-                            reader.GetString("title"),
-                            reader.GetString("author"),
-                            reader.GetInt32("publication_year"),
-                            reader.GetInt32("total_copies"),
-                            reader.GetInt32("available_copies")
-                        );
+                        var book = Library.FindBook(reader.GetString("title"), reader.GetString("author"));
+                        var copy = new Copy
+                            (
+                                reader["code"].ToString(),
+                                book,
+                                reader.GetInt32("edition"),
+                                Enum.Parse<Copy.CopyCondition>(reader.GetString("condition"), true) // Parse the string to the enum
+                            );
 
-                        Library.AddBook(book);
+                        book.AddCopy(copy);
                     }
                 }
             }
         }
+
 
         internal void SelectUsersDB()
         {
@@ -253,9 +267,10 @@ namespace ProjectoGestaoBiblioteca
                 Console.WriteLine("1. Register User");
                 Console.WriteLine("2. View Users");
                 Console.WriteLine("3. Register Books");
-                Console.WriteLine("4. View Books");
-                Console.WriteLine("5. Loan Report");
-                Console.WriteLine("6. Logout");
+                Console.WriteLine("4. Add Copies");
+                Console.WriteLine("5. View Books and Copies");
+                Console.WriteLine("6. Loan Report");
+                Console.WriteLine("7. Logout");
                 Console.Write("Select an option: ");
                 string choice = Console.ReadLine();
                 switch (choice)
@@ -284,19 +299,46 @@ namespace ProjectoGestaoBiblioteca
                         Console.ReadKey();
                         break;
                     case "4":
+                        // Add copies logic
+                        Console.WriteLine("Enter book title or author name:");
+                        string? search = Console.ReadLine();
+                        var foundBooks = Library.SearchBook(search);
+                        Console.WriteLine(Utils.ListToString(foundBooks, "Books Found"));
+
+                        int index = Utils.ReadInt("Choose the book index: ", 1, foundBooks.Count);
+                        index--; // Adjust for 0-based index
+                        var book = foundBooks[index];
+                        int edition =Utils.ReadInt("Edition: ", 1);
+                        string code = Utils.ReadValidString("Code: ", input => !String.IsNullOrWhiteSpace(input));
+                        var conditionList = Enum.GetValues<Copy.CopyCondition>().ToList();
+                        Console.WriteLine(Utils.ListToString(conditionList, "Possible conditions:"));
+                        int conditionIndex = Utils.ReadInt("Choose the condition index: ", 1, conditionList.Count);
+                        conditionIndex--; // Adjust for 0-based index
+                        var condition = conditionList[conditionIndex];
+
+                        book.Copies.Add(new Copy(code, book, edition, condition));
+
+
+
+                        Console.WriteLine($"Copy of {book.Title} successfully added!");
+                            
+                            
+                        
+                        break;
+                    case "5":
                         // View books logic
                         Console.WriteLine(Library.BooksToString(true));
                         Console.WriteLine("Press any key to continue...");
                         Console.ReadKey();
                         break;
-                    case "5":
+                    case "6":
                         // Loan report logic
                         Console.WriteLine("Loan Report:");
                         Console.WriteLine(Library.GetReport());
                         Console.WriteLine("Press any key to continue...");
                         Console.ReadKey();
                         break;
-                    case "6":
+                    case "7":
                         flag = false;
                         break;
                     default:
@@ -363,7 +405,11 @@ namespace ProjectoGestaoBiblioteca
                             if (foundBooks[index].AvailableCopies > 0)
                             {
                                 Library.LoanCopy(LoggedUser, book); // Loan the copy to the user
-                                Console.WriteLine($"Book {book.Title} successfully loaned!");
+                                ExecuteNonQuery(
+                                    "UPDATE books SET available_copies = available_copies - 1 WHERE title = @Title AND author = @Author",
+                                    new { Title = book.Title, Author = book.Author }
+                                    );
+                                Console.WriteLine($"Copy of {book.Title} successfully loaned!");
                             }
                             else
                                 Console.WriteLine("No available copies for this book.");
@@ -378,13 +424,18 @@ namespace ProjectoGestaoBiblioteca
                         }
                         else if (LoggedUser.CurrentLoans.Count == 1)
                         {
+                            var loanedCopy = LoggedUser.CurrentLoans[0];
                             Console.WriteLine("You have one copy to return:");
-                            Console.WriteLine(LoggedUser.CurrentLoans[0].ToString());
+                            Console.WriteLine(loanedCopy.ToString());
                             Console.WriteLine("Do you want to return it? (y/n)");
                             string answer = Console.ReadLine();
                             if (answer.ToLower() == "y")
                             {
-                                Library.ReturnCopy(LoggedUser, LoggedUser.CurrentLoans[0]);
+                                ExecuteNonQuery(
+                                    "UPDATE books SET available_copies = available_copies + 1 WHERE title = @Title AND author = @Author",
+                                    new { Title = loanedCopy.Book.Title, Author = loanedCopy.Book.Author }
+                                    );
+                                Library.ReturnCopy(LoggedUser, loanedCopy);
                                 Console.WriteLine("Copy returned successfully!");
                             }
                             
@@ -402,6 +453,10 @@ namespace ProjectoGestaoBiblioteca
                                 string answer = Console.ReadLine();
                                 if (answer.ToLower() == "y")
                                 {
+                                    ExecuteNonQuery(
+                                        "UPDATE books SET available_copies = available_copies + 1 WHERE title = @Title AND author = @Author",
+                                        new { Title = copyToReturn.Book.Title, Author = copyToReturn.Book.Author }
+                                        );
                                     Library.ReturnCopy(LoggedUser, copyToReturn);
                                     Console.WriteLine("Copy returned successfully!");
                                    

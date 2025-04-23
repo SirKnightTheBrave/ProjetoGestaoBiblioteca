@@ -98,7 +98,7 @@ namespace ProjectoGestaoBiblioteca
             foreach (var book in Books)
             {
                 text += book.ToString() + "\n";
-                text += book.CopiesToString() + "\n";
+                if (withCopies) text += book.CopiesToString() + "\n";
             }
             return text;
         }

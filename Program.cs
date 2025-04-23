@@ -6,7 +6,6 @@
         {
             string connectionString = "server=localhost;database=library_management;user=root;password=;";
             var library = new Library("CESAE LIBRARY", 1, TimeSpan.FromDays(3)); //1 aluguer por utilizador, 3 dias de aluguer
-            Console.WriteLine("password".GetHashCode().ToString());
             var consoleApp = new ConsoleUI(library, connectionString, ConsoleColor.DarkBlue, ConsoleColor.White);
 
             //consoleApp.Library.AddUser(UserFactory.Create("admin", "admin", "password", true));

@@ -138,6 +138,7 @@ namespace ProjectoGestaoBiblioteca
 
             if (list == null || list.Count == 0)
                 return text + "[Empty]";
+
             int i = 1;
             foreach (var item in list)
             {

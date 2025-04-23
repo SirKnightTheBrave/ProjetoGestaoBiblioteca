@@ -48,10 +48,8 @@ INSERT INTO users (`name`, username, address, phone, password, isAdmin) VALUES
 ('Henry Clark', 'henryc', '65 Poplar Ct', '555-777-8888', 'pass', FALSE);
 
 
-INSERT INTO loans (copy_id, return_condition, loan_from, loan_to, user_id) VALUES
-(3001, NULL, '2025-04-01', NULL, 2),  
-(4001, NULL, '2025-03-28', NULL, 4),  
-(5001, NULL, '2025-04-10', NULL, 5),  
-(5005, NULL, '2025-04-12', NULL, 7);  
-
-);
+INSERT INTO loans (copy_id, return_condition, loan_from, loan_until, user_id) VALUES
+(10, NULL, '2025-04-01', NULL, 2),  
+(16, NULL, '2025-03-28', NULL, 4),  
+(19, NULL, '2025-04-10', NULL, 5),  
+(23, NULL, '2025-04-12', NULL, 7);  

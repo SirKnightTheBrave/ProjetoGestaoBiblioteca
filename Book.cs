@@ -43,6 +43,11 @@ namespace ProjectoGestaoBiblioteca
         public string CopiesToString()
         {
             string text = "Copies:\n";
+            if (Copies.Count == 0)
+            {
+                text += "No existing copies.\n";
+                return text;
+            }
             foreach (var copy in Copies) text += copy.ToString() + "\n";
             return text;
         }

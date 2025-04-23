@@ -26,21 +26,23 @@ CREATE TABLE books (
 );
 
 CREATE TABLE copies (
-	id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     `code` INT UNIQUE NOT NULL,
     book_id INT NOT NULL,
     edition INT,
     `condition` ENUM('Good', 'Fair', 'Worn'),
-    is_loaned BOOL DEFAULT FALSE
+    is_loaned BOOL DEFAULT FALSE,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE loans (
 	id INT PRIMARY KEY AUTO_INCREMENT,
     copy_id INT NOT NULL,
     `return_condition` ENUM('Good', 'Fair', 'Worn') DEFAULT NULL,
     loan_from DATE DEFAULT NULL,
-    loan_to DATE DEFAULT NULL,
-    user_id INT DEFAULT NULL,
+    loan_until DATE DEFAULT NULL,
+    user_id INT NOT NULL,
     FOREIGN KEY (copy_id) REFERENCES copies(id),  
     FOREIGN KEY (user_id) REFERENCES users(id)   
 );
