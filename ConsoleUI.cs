@@ -11,6 +11,8 @@ using Org.BouncyCastle.Asn1.X509;
 using System.Data;
 using Mysqlx.Crud;
 using System.Xml.Linq;
+using Google.Protobuf.Reflection;
+using static Mysqlx.Expect.Open.Types;
 
 namespace ProjectoGestaoBiblioteca
 {
@@ -34,7 +36,7 @@ namespace ProjectoGestaoBiblioteca
            SelectBooksDB(); //carregar livros da BD
            SelectUsersDB(); //carregar utilizadores da BD
            SelectCopiesDB();
-           Library.Books[0].AddCopy(new Copy("1001", Library.Books[0], 1, Copy.CopyCondition.Good)); //adicionar uma cópia do primeiro livro para teste
+           //Library.Books[0].AddCopy(new Copy("1001", Library.Books[0], 1, Copy.CopyCondition.Good)); //adicionar uma cópia do primeiro livro para teste
         }
 
         //nonquery: sem ser select? using funciona sem {}?
@@ -76,7 +78,16 @@ namespace ProjectoGestaoBiblioteca
             using (var connection = new MySqlConnection(ConnectionString))
             {
                 connection.Open();
-                var command = new MySqlCommand("SELECT code, title, author, edition, `condition` FROM copies INNER JOIN books ON books.id = copies.book_id", connection);
+                // Use INNER JOIN to get the book details along with the copies
+                var command = new MySqlCommand(
+                    "SELECT code, title, author, edition, `condition`, is_loaned, loan_from, username " +
+                    "FROM copies " +
+                    "INNER JOIN books ON books.id = copies.book_id " +
+                    "LEFT JOIN view_current_loans ON copies.id = view_current_loans.copy_id " +
+                    "LEFT JOIN users ON view_current_loans.user_id = users.id",
+                    connection
+                    );
+
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -84,11 +95,15 @@ namespace ProjectoGestaoBiblioteca
                         var book = Library.FindBook(reader.GetString("title"), reader.GetString("author"));
                         var copy = new Copy
                             (
-                                reader["code"].ToString(),
+                                reader.GetInt32("code"),
                                 book,
                                 reader.GetInt32("edition"),
-                                Enum.Parse<Copy.CopyCondition>(reader.GetString("condition")) // Parse the string to the enum
+                                Enum.Parse<Copy.CopyCondition>(reader.GetString("condition")), // Parse the string to the enum
+                                reader.GetBoolean("is_loaned"),
+                                reader.IsDBNull("username") ? null : Library.FindUser(reader.GetString("username")), // Use the Library to find the user
+                                reader.IsDBNull("loan_from") ? null : reader.GetDateTime("loan_from") // Use DateTime? to handle null values
                             );
+                        Library.Users.FirstOrDefault(u => u.Username == reader["username"].ToString())?.AddLoan(copy); // Adiciona o empréstimo ao utilizador
 
                         book.AddCopy(copy);
                     }
@@ -102,7 +117,7 @@ namespace ProjectoGestaoBiblioteca
             using (var connection = new MySqlConnection(ConnectionString))
             {
                 connection.Open();
-                var command = new MySqlCommand("SELECT name, username, password, isAdmin, address, phone FROM users", connection);
+                var command = new MySqlCommand("SELECT name, username, password, is_admin, address, phone FROM users", connection);
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -113,7 +128,7 @@ namespace ProjectoGestaoBiblioteca
                             reader.GetString("name"),
                             reader.GetString("username"),
                             reader.GetString("password"),
-                            reader.GetBoolean("isAdmin"),
+                            reader.GetBoolean("is_admin"),
                             reader.GetString("address"),
                             reader.GetString("phone"),
                             true // Não fazer hash aqui, pois já está na base de dados
@@ -132,52 +147,6 @@ namespace ProjectoGestaoBiblioteca
                 }
             }
         }
-
-
-
-        public bool InsertBookDB(Book book)
-        {
-            using (var connection = new MySqlConnection(ConnectionString))
-            {
-                connection.Open();
-
-                string query = "INSERT INTO Books (Title, Author, publication_year) VALUES (@Title, @Author, @PublicationYear)";
-
-                using (var command = new MySqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@Title", book.Title);
-                    command.Parameters.AddWithValue("@Author", book.Author);
-                    command.Parameters.AddWithValue("@PublicationYear", book.PublicationYear);
-
-                    int rowsAffected = command.ExecuteNonQuery();
-                    return rowsAffected > 0; // Return true if a row was inserted
-                }
-            }
-        }
-
-        public bool InsertUserDB(User user)
-        {
-            using (var connection = new MySqlConnection(ConnectionString))
-            {
-                connection.Open();
-
-                string query = "INSERT INTO Users (name, username, password, isAdmin, address, phone) VALUES (@Name, @Username, @password, @IsAdmin, @Address, @Phone)";
-
-                using (var command = new MySqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@Name", user.Name);
-                    command.Parameters.AddWithValue("@Username", user.Username);
-                    command.Parameters.AddWithValue("@password", user.HashedPassword);
-                    command.Parameters.AddWithValue("@IsAdmin", user.IsAdmin);
-                    command.Parameters.AddWithValue("@Address", user.Address);
-                    command.Parameters.AddWithValue("@Phone", user.Phone);
-
-                    int rowsAffected = command.ExecuteNonQuery();
-                    return rowsAffected > 0; // Return true if a row was inserted
-                }
-            }
-        }
-
         /// <summary>
         /// Reads a string and validates it using a provided validation function.
         /// </summary>
@@ -240,7 +209,10 @@ namespace ProjectoGestaoBiblioteca
             User user = UserFactory.Create(name, username, password, isAdmin, address, phone, true);
 
             Library.AddUser(user);
-            ExecuteNonQuery("INSERT INTO Users(name, username, password, isAdmin, address, phone) VALUES(@Name, @Username, @password, @IsAdmin, @Address, @Phone)");
+            ExecuteNonQuery(
+                "INSERT INTO Users(name, username, password, is_admin, address, phone) VALUES(@Name, @Username, @Password, @IsAdmin, @Address, @Phone)",
+                new { Name = name, Username = username, Password = password, IsAdmin=isAdmin, Address=address, Phone=phone }
+                );
         }
 
         public void LoginMenu()
@@ -291,10 +263,12 @@ namespace ProjectoGestaoBiblioteca
                         Console.WriteLine("Enter book details:");
                         string title = Utils.ReadValidString("Title: ", input => !String.IsNullOrWhiteSpace(input));
                         string author = Utils.ReadValidString("Author: ", input => !String.IsNullOrWhiteSpace(input));
-                        int PublicationYear =Utils.ReadInt("Publication of Year:");//"Publication Year: ", x => x < 0, "Year must be positive.");
-                        Book newBook = new Book(title, author, PublicationYear);
+                        int publicationYear =Utils.ReadInt("Publication Year:");//"Publication Year: ", x => x < 0, "Year must be positive.");
+                        Book newBook = new Book(title, author, publicationYear);
                         Library.AddBook(newBook);
-                        InsertBookDB(newBook);
+                        ExecuteNonQuery("INSERT INTO Books (title, author, publication_year) VALUES (@Title, @Author, @PublicationYear)",
+                            new { title, author, publicationYear }
+                            );
                         Console.WriteLine("Book registered successfully!");
 
                         break;
@@ -309,7 +283,7 @@ namespace ProjectoGestaoBiblioteca
                         index--; // Adjust for 0-based index
                         var book = foundBooks[index];
                         int edition =Utils.ReadInt("Edition: ", 1);
-                        string code = Utils.ReadValidString("Code: ", input => !String.IsNullOrWhiteSpace(input));
+                        int code = Utils.ReadInt("Code: ", 1);
                         var conditionList = Enum.GetValues<Copy.CopyCondition>().ToList();
                         Console.WriteLine(Utils.ListToString(conditionList, "Possible conditions:"));
                         int conditionIndex = Utils.ReadInt("Choose the condition index: ", 1, conditionList.Count);
@@ -317,6 +291,10 @@ namespace ProjectoGestaoBiblioteca
                         var condition = conditionList[conditionIndex];
 
                         book.Copies.Add(new Copy(code, book, edition, condition));
+                        ExecuteNonQuery(
+                            "CALL add_copy(@book_title, @book_author, @code, @edition, @condition)",
+                            new { book_title = book.Title, book_author = book.Author, code, edition, condition }
+                            );
 
 
 
@@ -402,8 +380,8 @@ namespace ProjectoGestaoBiblioteca
                             {
                                 Library.LoanCopy(LoggedUser, book); // Loan the copy to the user
                                 ExecuteNonQuery(
-                                    "UPDATE books SET available_copies = available_copies - 1 WHERE title = @Title AND author = @Author",
-                                    new { Title = book.Title, Author = book.Author }
+                                    "CALL loan_copy(@copy_code, @user_name)",
+                                    new { copy_code = LoggedUser.CurrentLoans.Last().Code, user_name = LoggedUser.Username }
                                     );
                                 Console.WriteLine($"Copy of {book.Title} successfully loaned!");
                             }
@@ -428,8 +406,8 @@ namespace ProjectoGestaoBiblioteca
                             if (answer.ToLower() == "y")
                             {
                                 ExecuteNonQuery(
-                                    "UPDATE books SET available_copies = available_copies + 1 WHERE title = @Title AND author = @Author",
-                                    new { Title = loanedCopy.Book.Title, Author = loanedCopy.Book.Author }
+                                    "CALL return_copy(@copy_code)",
+                                    new { copy_code = loanedCopy.Code }
                                     );
                                 Library.ReturnCopy(LoggedUser, loanedCopy);
                                 Console.WriteLine("Copy returned successfully!");
@@ -450,9 +428,9 @@ namespace ProjectoGestaoBiblioteca
                                 if (answer.ToLower() == "y")
                                 {
                                     ExecuteNonQuery(
-                                        "UPDATE books SET available_copies = available_copies + 1 WHERE title = @Title AND author = @Author",
-                                        new { Title = copyToReturn.Book.Title, Author = copyToReturn.Book.Author }
-                                        );
+                                     "CALL return_copy(@copy_code)",
+                                     new { copy_code = copyToReturn.Code }
+                                     );
                                     Library.ReturnCopy(LoggedUser, copyToReturn);
                                     Console.WriteLine("Copy returned successfully!");
                                    

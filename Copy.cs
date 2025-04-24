@@ -9,15 +9,15 @@ namespace ProjectoGestaoBiblioteca
 {
     internal class Copy
     {
-        public string Code { get; set; }
+        public int Code { get; set; }
         public Book Book { get; set; }
         public int Edition { get; set; }
 
         public enum CopyCondition //enums repetidos em ficheiros diferentes?
         {
-            Good,
-            Fair,
-            Worn
+            Good=1,
+            Fair=2,
+            Worn=3
         }
         public CopyCondition Condition { get; set; }
 
@@ -25,13 +25,15 @@ namespace ProjectoGestaoBiblioteca
         public User? LoanedTo { get; set; }
         public DateTime? LoanDate { get; set; }
 
-        public Copy(string code, Book book, int edition, CopyCondition condition)
+        public Copy(int code, Book book, int edition, CopyCondition condition, bool isLoaned = false, User? loanedTo = null, DateTime? loanDate = null)
         {
             Code = code;
             Book = book;
             Edition = edition;
-            IsLoaned = false; //por defeito, é falso?
+            IsLoaned = isLoaned; //por defeito, é falso?
             Condition = condition;
+            LoanedTo = loanedTo;
+            LoanDate = loanDate;
         }
 
         public bool Loan(User user)

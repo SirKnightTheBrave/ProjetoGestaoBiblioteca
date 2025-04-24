@@ -81,7 +81,7 @@ namespace ProjectoGestaoBiblioteca
             return new Tuple<bool, bool>(bookAdded, copyAdded);
         }
 
-        public Copy? FindCopy(string code)
+        public Copy? FindCopy(int code)
         {
             foreach (Book book in Books)
             {
