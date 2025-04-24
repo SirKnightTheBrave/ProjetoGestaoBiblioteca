@@ -9,6 +9,8 @@ using static System.Reflection.Metadata.BlobBuilder;
 using System.Reflection;
 using Org.BouncyCastle.Asn1.X509;
 using System.Data;
+using Mysqlx.Crud;
+using System.Xml.Linq;
 
 namespace ProjectoGestaoBiblioteca
 {
@@ -85,7 +87,7 @@ namespace ProjectoGestaoBiblioteca
                                 reader["code"].ToString(),
                                 book,
                                 reader.GetInt32("edition"),
-                                Enum.Parse<Copy.CopyCondition>(reader.GetString("condition"), true) // Parse the string to the enum
+                                Enum.Parse<Copy.CopyCondition>(reader.GetString("condition")) // Parse the string to the enum
                             );
 
                         book.AddCopy(copy);
@@ -238,7 +240,7 @@ namespace ProjectoGestaoBiblioteca
             User user = UserFactory.Create(name, username, password, isAdmin, address, phone, true);
 
             Library.AddUser(user);
-            InsertUserDB(user);
+            ExecuteNonQuery("INSERT INTO Users(name, username, password, isAdmin, address, phone) VALUES(@Name, @Username, @password, @IsAdmin, @Address, @Phone)");
         }
 
         public void LoginMenu()
@@ -282,8 +284,7 @@ namespace ProjectoGestaoBiblioteca
                     case "2":
                         // View user logic
                         Console.WriteLine(Library.UsersToString());
-                        Console.WriteLine("Press any key to continue...");
-                        Console.ReadKey();
+
                         break;
                     case "3":
                         // Register books logic
@@ -295,8 +296,7 @@ namespace ProjectoGestaoBiblioteca
                         Library.AddBook(newBook);
                         InsertBookDB(newBook);
                         Console.WriteLine("Book registered successfully!");
-                        Console.WriteLine("Press any key to continue...");
-                        Console.ReadKey();
+
                         break;
                     case "4":
                         // Add copies logic
@@ -328,15 +328,12 @@ namespace ProjectoGestaoBiblioteca
                     case "5":
                         // View books logic
                         Console.WriteLine(Library.BooksToString(true));
-                        Console.WriteLine("Press any key to continue...");
-                        Console.ReadKey();
+                       
                         break;
                     case "6":
                         // Loan report logic
                         Console.WriteLine("Loan Report:");
                         Console.WriteLine(Library.GetReport());
-                        Console.WriteLine("Press any key to continue...");
-                        Console.ReadKey();
                         break;
                     case "7":
                         flag = false;
@@ -344,7 +341,8 @@ namespace ProjectoGestaoBiblioteca
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
                         break;
-                }
+                  }
+                Utils.WaitForKeyPress();
             } while (flag);
             LoginMenu();
 
@@ -387,8 +385,6 @@ namespace ProjectoGestaoBiblioteca
                     case "1":
                         // View books logic
                         Console.WriteLine(Library.BooksToString());
-                        Console.WriteLine("Press any key to continue...");
-                        Console.ReadKey();
                         break;
                     case "2":
                         //Search and Loan book logic
