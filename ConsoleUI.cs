@@ -123,7 +123,7 @@ namespace ProjectoGestaoBiblioteca
                 {
                     while (reader.Read())
                     {
-                        var user = UserFactory.Create(
+                        var user = Library.AddUser(
 
                             reader.GetString("name"),
                             reader.GetString("username"),
@@ -141,8 +141,6 @@ namespace ProjectoGestaoBiblioteca
                         //    reader.GetString("phone"),
                         //    reader.GetBoolean("isAdmin")
                         //);
-
-                        Library.AddUser(user);
                     }
                 }
             }
@@ -206,13 +204,13 @@ namespace ProjectoGestaoBiblioteca
             Console.Write("Is Admin (true/false): ");
             bool isAdmin = bool.Parse(Console.ReadLine());
 
-            User user = UserFactory.Create(name, username, password, isAdmin, address, phone, true);
+          
 
-            Library.AddUser(user);
-            ExecuteNonQuery(
-                "INSERT INTO Users(name, username, password, is_admin, address, phone) VALUES(@Name, @Username, @Password, @IsAdmin, @Address, @Phone)",
-                new { Name = name, Username = username, Password = password, IsAdmin=isAdmin, Address=address, Phone=phone }
+            Library.AddUser(name, username, password, isAdmin, address, phone, true);
+            ExecuteNonQuery("INSERT INTO Users(name, username, password, is_admin, address, phone) VALUES(@Name, @Username, @Password, @IsAdmin, @Address, @Phone)",
+                new { Name = name, Username = username, Password = password, IsAdmin = isAdmin, Address = address, Phone = phone }
                 );
+
         }
 
         public void LoginMenu()
