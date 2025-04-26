@@ -16,13 +16,16 @@ namespace ProjectoGestaoBiblioteca
         //TimeSpan para duração de tempo!
         public TimeSpan LoanPeriod { get; set; }
 
-        public Library(string name, int maxUserLoans, TimeSpan loanPeriod)
+        public decimal Fine {get; set;}
+
+        public Library(string name, int maxUserLoans, TimeSpan loanPeriod, decimal fine)
         {
             Name = name;
             MaxUserLoans = maxUserLoans;
             Books = new List<Book>();
             Users = new List<User>();
             LoanPeriod = loanPeriod;
+            Fine = fine;
         }
 
         public bool AddBook(Book book)
@@ -107,9 +110,10 @@ namespace ProjectoGestaoBiblioteca
             var copy = book.FindFirstAvailableCopy(user);
             if (copy != null)
             {
-                copy.Loan(user);
+                copy.Loan(user, LoanPeriod);
                 user.AddLoan(copy);
                 book.SetAvailableCopies();
+
                 return true;
             }
             return false;
@@ -171,7 +175,7 @@ namespace ProjectoGestaoBiblioteca
             // Check if the copy is loaned and the user is the one who loaned it
             if (copy.IsLoaned && copy.LoanedTo == user)
             {
-                copy.Return();
+                copy.Return(Fine);
                 user.RemoveLoan(copy);
                 copy.Book.SetAvailableCopies();
                 return true; // Return successful
