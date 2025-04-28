@@ -11,14 +11,14 @@ namespace ProjectoGestaoBiblioteca
         public string Name { get; set; }
         public string Username { get; set; }
         public string Address { get; set; }
-        public string? Phone { get; set; }
+        public string Phone { get; set; }
         // coloquei public porque a password já está hashed / só não expôr para a interface
         public string HashedPassword { get; set; } //segurança, não expor a password
         public List<Copy>  CurrentLoans { get; private set; }
         public bool IsAdmin { get; set; } // Adiciona propriedade IsAdmin para verificar se é admin ou não
         // public bool IsBlocked { get; set; } // Adiciona propriedade IsBlocked para verificar se o user está bloqueado ou não
         
-        public User(string name, string username, string hashPassword, string address, string? phone = null, bool isAdmin = false)
+        public User(string name, string username, string hashPassword, string address, string phone, bool isAdmin = false)
         {
             Name = name;
             Username = username;
@@ -42,14 +42,10 @@ namespace ProjectoGestaoBiblioteca
 
         public void AddLoan(Copy copy)
         {
-            if (CurrentLoans.Count < 3) // Limite de 3 empréstimos por utilizador, pode ser alterado
-            {
+
                 CurrentLoans.Add(copy);
-            }
-            else
-            {
-                throw new InvalidOperationException("User has reached the maximum number of loans.");
-            }
+
+
         }
      public void RemoveLoan(Copy copy)
         {

@@ -35,7 +35,7 @@ INSERT INTO copies (`code`, book_id, edition, `condition`, is_loaned) VALUES
 (5005, 5, 2, 'Good', TRUE);
 
 
-INSERT INTO users (`name`, username, address, phone, password, isAdmin) VALUES
+INSERT INTO users (`name`, username, address, phone, password, is_admin) VALUES
 ('admin', 'admin', '123 Admin St', '123-456-7890', 'pass', TRUE),
 ('user', 'user', '456 User Ln', '987-654-3210', 'pass', FALSE),
 ('Alice Johnson', 'alicej', '12 Maple Ave', '555-123-4567', 'pass', FALSE),

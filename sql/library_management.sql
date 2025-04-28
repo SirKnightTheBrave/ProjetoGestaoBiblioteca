@@ -9,10 +9,10 @@ CREATE TABLE users (
 	id INT PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(50) NOT NULL,
     username VARCHAR(50) UNIQUE NOT NULL, -- unique implies not null?
-    address VARCHAR(50),
-    phone VARCHAR(50),
+    address VARCHAR(50) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
     `password` VARCHAR(50) NOT NULL,
-    isAdmin BOOL DEFAULT FALSE
+    is_admin BOOL DEFAULT FALSE
 );
 
 CREATE TABLE books (
@@ -53,3 +53,57 @@ CREATE TABLE library (
 	MaxUserLoans INT,
     LoanPeriodInDays INT
 );
+CREATE VIEW view_current_loans AS
+SELECT*
+FROM loans
+WHERE loan_until IS NULL;
+
+DELIMITER $$
+CREATE PROCEDURE loan_copy (IN copy_code INT, IN user_name VARCHAR(50))
+BEGIN
+	DECLARE copy_id INT;
+    DECLARE book_code INT;
+    DECLARE user_id INT;
+    
+	SELECT id, book_id INTO copy_id, book_code
+	FROM copies
+	WHERE `code` = copy_code;
+	
+    SELECT id INTO user_id
+    FROM users
+    WHERE `username` = user_name;
+    
+    UPDATE books SET available_copies = available_copies - 1 WHERE books.id = book_code;
+	UPDATE copies SET is_loaned = true WHERE copies.code = copy_code ;
+	INSERT INTO loans (copy_id, loan_from, user_id) VALUES (copy_id, current_date(), user_id); 
+END $$
+
+CREATE PROCEDURE return_copy (IN copy_code INT)
+BEGIN
+	DECLARE copy_id INT;
+    DECLARE book_id INT;
+  
+    
+	SELECT id, book_id INTO copy_id, book_id
+	FROM copies
+	WHERE `code` = copy_code;
+	
+    
+    UPDATE books SET available_copies = available_copies + 1 WHERE books.id = book_id;
+	UPDATE copies SET is_loaned = false WHERE copies.code = copy_code ;
+	UPDATE loans SET loan_until = current_date(); 
+END $$
+
+CREATE PROCEDURE add_copy (IN book_title VARCHAR(50), IN book_author VARCHAR(50), IN copy_code INT, IN copy_edition INT, IN copy_condition ENUM('Good', 'Fair', 'Worn'))
+BEGIN
+	DECLARE book_code INT;
+    
+	SELECT id INTO book_code
+	FROM books
+	WHERE `title` = book_title AND `author`= book_author;
+	
+    
+    
+    UPDATE books SET available_copies = available_copies + 1, total_copies = total_copies + 1 WHERE books.id = book_code;
+	INSERT INTO copies (book_id, `code`, edition, `condition`) VALUES (book_code, copy_code, copy_edition, copy_condition); 
+END $$

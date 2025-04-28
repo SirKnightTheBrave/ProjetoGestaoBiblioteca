@@ -81,7 +81,7 @@ namespace ProjectoGestaoBiblioteca
             return new Tuple<bool, bool>(bookAdded, copyAdded);
         }
 
-        public Copy? FindCopy(string code)
+        public Copy? FindCopy(int code)
         {
             foreach (Book book in Books)
             {
@@ -125,8 +125,9 @@ namespace ProjectoGestaoBiblioteca
             return Users.FirstOrDefault(u => u.Username == username);//método procura o user pelo username
         }
 
-        public bool AddUser(User user)
+        public bool AddUser(string name, string username, string password, bool isAdmin = false, string? address = null, string? phone = null, bool hashPassword = true)
         {
+            User user = UserFactory.Create(name, username, password, isAdmin, address, phone, hashPassword);
             User? storedUser = FindUser(user); //criação de uma variável de procura
             if (storedUser != null){//verifica a existência do username                
                 return false;//caso o username exista, rompe o método e retorna falso
