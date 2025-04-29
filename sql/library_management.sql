@@ -54,7 +54,7 @@ CREATE TABLE library (
     LoanPeriodInDays INT
 );
 CREATE VIEW view_current_loans AS
-SELECT*
+SELECT *
 FROM loans
 WHERE loan_until IS NULL;
 
@@ -80,18 +80,18 @@ END $$
 
 CREATE PROCEDURE return_copy (IN copy_code INT)
 BEGIN
-	DECLARE copy_id INT;
+	DECLARE copyid INT;
     DECLARE book_id INT;
   
     
-	SELECT id, book_id INTO copy_id, book_id
+	SELECT id, book_id INTO copyid, book_id
 	FROM copies
 	WHERE `code` = copy_code;
 	
     
     UPDATE books SET available_copies = available_copies + 1 WHERE books.id = book_id;
-	UPDATE copies SET is_loaned = false WHERE copies.code = copy_code ;
-	UPDATE loans SET loan_until = current_date(); 
+	UPDATE copies SET is_loaned = false WHERE copies.code = copy_code;
+	UPDATE loans SET loan_until = current_date() WHERE copy_id = copyid AND loan_until is NULL; 
 END $$
 
 CREATE PROCEDURE add_copy (IN book_title VARCHAR(50), IN book_author VARCHAR(50), IN copy_code INT, IN copy_edition INT, IN copy_condition ENUM('Good', 'Fair', 'Worn'))

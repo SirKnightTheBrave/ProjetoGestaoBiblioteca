@@ -93,6 +93,7 @@ namespace ProjectoGestaoBiblioteca
                     while (reader.Read())
                     {
                         var book = Library.FindBook(reader.GetString("title"), reader.GetString("author"));
+                        var user = reader.IsDBNull("username") ? null : Library.FindUser(reader.GetString("username"));
                         var copy = new Copy
                             (
                                 reader.GetInt32("code"),
@@ -100,7 +101,7 @@ namespace ProjectoGestaoBiblioteca
                                 reader.GetInt32("edition"),
                                 Enum.Parse<Copy.CopyCondition>(reader.GetString("condition")), // Parse the string to the enum
                                 reader.GetBoolean("is_loaned"),
-                                reader.IsDBNull("username") ? null : Library.FindUser(reader.GetString("username")), // Use the Library to find the user
+                                user,// Use the Library to find the user
                                 reader.IsDBNull("loan_from") ? null : reader.GetDateTime("loan_from") // Use DateTime? to handle null values
                             );
                         Library.Users.FirstOrDefault(u => u.Username == reader["username"].ToString())?.AddLoan(copy); // Adiciona o empréstimo ao utilizador
@@ -241,8 +242,9 @@ namespace ProjectoGestaoBiblioteca
                 Console.WriteLine("3. Register Books");
                 Console.WriteLine("4. Add Copies");
                 Console.WriteLine("5. View Books and Copies");
-                Console.WriteLine("6. Loan Report");
-                Console.WriteLine("7. Logout");
+                Console.WriteLine("6. Current Loans");
+                Console.WriteLine("7. Loan Report");
+                Console.WriteLine("8. Logout");
                 Console.Write("Select an option: ");
                 string choice = Console.ReadLine();
                 switch (choice)
@@ -307,11 +309,16 @@ namespace ProjectoGestaoBiblioteca
                        
                         break;
                     case "6":
-                        // Loan report logic
-                        Console.WriteLine("Loan Report:");
+                        // Current loans logic
+
                         Console.WriteLine(Library.GetReport());
                         break;
                     case "7":
+                        // Loan report logic
+                        Console.WriteLine("Loan Report:");
+                        GetLoanReport();
+                        break;
+                    case "8":
                         flag = false;
                         break;
                     default:
@@ -322,6 +329,37 @@ namespace ProjectoGestaoBiblioteca
             } while (flag);
             LoginMenu();
 
+        }
+        public void GetLoanReport()
+        {
+            Console.WriteLine("***LOAN REPORT***");
+            using (var connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+                // Use INNER JOIN to get the book details along with the copies
+                var command = new MySqlCommand(
+                "SELECT title, code, username, loan_from, loan_until " +
+                "FROM loans " +
+                "INNER JOIN copies ON copies.id = loans.copy_id " +
+                "INNER JOIN books ON books.id = copies.book_id " +
+                "INNER JOIN users ON users.id = loans.user_id ",
+                connection
+                );
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string title = reader.GetString(reader.GetOrdinal("title"));
+                        int code = reader.GetInt32(reader.GetOrdinal("code"));
+                        string username = reader.GetString(reader.GetOrdinal("username"));
+                        string loanFrom = reader.GetDateTime(reader.GetOrdinal("loan_from")).ToString("yyyy-MM-dd");
+                        string? loanUntil = reader.IsDBNull("loan_until") ? null : reader.GetDateTime("loan_until").ToString("yyyy-MM-dd");
+
+                        Console.WriteLine($"\nTitle: {title}, Copy code: {code}\n\t User: {username}, Loan Date: {loanFrom}, Return Date: {loanUntil}");
+                    }
+                }
+
+            }
         }
         public void SplashScreen()
         {
