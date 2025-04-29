@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Reflection.Metadata.BlobBuilder;
+﻿
 
 namespace ProjectoGestaoBiblioteca
 {
@@ -57,23 +52,6 @@ namespace ProjectoGestaoBiblioteca
            return Copies.FirstOrDefault(c => !c.IsLoaned);
         }
 
-
-        //public enum CopyFilter
-        //{
-        //    All,
-        //    Available,
-        //    Loaned
-        //}
-
-        //public string CopiesToString(CopyFilter filter = CopyFilter.All) //options all, only available or only loaned?
-        //{
-        //    string text = $"Copies ({filter}):";
-        //    foreach (Copy copy in Copies)
-        //    {
-        //        text += copy.ToString();
-        //    }
-        //    return text;
-        //}
         public void AddCopy(Copy copy)
         {
             Copies.Add(copy);

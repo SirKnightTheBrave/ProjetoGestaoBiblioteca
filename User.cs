@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace ProjectoGestaoBiblioteca
 {
@@ -13,7 +9,7 @@ namespace ProjectoGestaoBiblioteca
         public string Address { get; set; }
         public string Phone { get; set; }
         // coloquei public porque a password já está hashed / só não expôr para a interface
-        public string HashedPassword { get; set; } //segurança, não expor a password
+        public string HashedPassword { get; set; } 
         public List<Copy>  CurrentLoans { get; private set; }
         public bool IsAdmin { get; set; } // Adiciona propriedade IsAdmin para verificar se é admin ou não
         // public bool IsBlocked { get; set; } // Adiciona propriedade IsBlocked para verificar se o user está bloqueado ou não

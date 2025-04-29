@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using MySql.Data.MySqlClient;
 using Dapper;
-using static System.Reflection.Metadata.BlobBuilder;
-using System.Reflection;
-using Org.BouncyCastle.Asn1.X509;
+
 using System.Data;
-using Mysqlx.Crud;
-using System.Xml.Linq;
-using Google.Protobuf.Reflection;
-using static Mysqlx.Expect.Open.Types;
+
 
 namespace ProjectoGestaoBiblioteca
 {
@@ -132,16 +123,9 @@ namespace ProjectoGestaoBiblioteca
                             reader.GetBoolean("is_admin"),
                             reader.GetString("address"),
                             reader.GetString("phone"),
-                            true // Não fazer hash aqui, pois já está na base de dados
+                            true 
                         );
-                        //var user = new User(
-                        //    reader.GetString("name"),
-                        //    reader.GetString("username"),
-                        //    reader.GetString("password"),
-                        //    reader.GetString("address"),
-                        //    reader.GetString("phone"),
-                        //    reader.GetBoolean("isAdmin")
-                        //);
+                      
                     }
                 }
             }
