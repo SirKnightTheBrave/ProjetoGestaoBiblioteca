@@ -97,7 +97,7 @@ namespace ProjectoGestaoBiblioteca
 
         public string BooksToString(bool withCopies = false)
         {
-            string text = "Books:\n";
+            string text = "Books:\n\n";
             foreach (var book in Books)
             {
                 text += book.ToString() + "\n";
@@ -150,7 +150,7 @@ namespace ProjectoGestaoBiblioteca
 
         public string GetReport()
         {
-            string text = "***REPORT***\n";
+            string text = "***CURRENT LOANS***\n";
 
             foreach (var book in Books) //para cada livro
                 if (book.TotalCopies != book.AvailableCopies) //se o total de cópias for diferente do número de cópias disponíveis

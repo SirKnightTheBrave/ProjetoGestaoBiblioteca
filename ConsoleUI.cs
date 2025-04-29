@@ -193,17 +193,12 @@ namespace ProjectoGestaoBiblioteca
         private void CreateUser()
         {
             Console.WriteLine("Enter user details:");
-            string name = Utils.ReadValidString("Name: ", input => !String.IsNullOrWhiteSpace(input));
-            Console.Write("Username: ");
-            string username = Console.ReadLine();
-            Console.Write("Address: ");
-            string? address = Console.ReadLine();
-            Console.Write("Phone: ");
-            string? phone = Console.ReadLine();
-            Console.Write("Password: ");
-            string password = Console.ReadLine();
-            Console.Write("Is Admin (true/false): ");
-            bool isAdmin = bool.Parse(Console.ReadLine());
+            string name = Utils.ReadValidString("Name:", input => !String.IsNullOrWhiteSpace(input));
+            string username = Utils.ReadValidString("Username:", input => !String.IsNullOrWhiteSpace(input));
+            string password = Utils.ReadValidString("Password:", input => !String.IsNullOrWhiteSpace(input));
+            string address = Utils.ReadValidString("Address:", input => !String.IsNullOrWhiteSpace(input));
+            string phone = Utils.ReadValidString("Phone:", input => !String.IsNullOrWhiteSpace(input));
+            bool isAdmin = Utils.ReadBool("Does the user have Admin privilege?");
 
           
 
@@ -247,6 +242,8 @@ namespace ProjectoGestaoBiblioteca
                 Console.WriteLine("8. Logout");
                 Console.Write("Select an option: ");
                 string choice = Console.ReadLine();
+                Thread.Sleep(500); // Simulate some processing time
+                NewConsole();
                 switch (choice)
                 {
                     case "1":
@@ -261,8 +258,8 @@ namespace ProjectoGestaoBiblioteca
                     case "3":
                         // Register books logic
                         Console.WriteLine("Enter book details:");
-                        string title = Utils.ReadValidString("Title: ", input => !String.IsNullOrWhiteSpace(input));
-                        string author = Utils.ReadValidString("Author: ", input => !String.IsNullOrWhiteSpace(input));
+                        string title = Utils.ReadValidString("Title:", input => !String.IsNullOrWhiteSpace(input));
+                        string author = Utils.ReadValidString("Author:", input => !String.IsNullOrWhiteSpace(input));
                         int publicationYear =Utils.ReadInt("Publication Year:");//"Publication Year: ", x => x < 0, "Year must be positive.");
                         Book newBook = new Book(title, author, publicationYear);
                         Library.AddBook(newBook);
@@ -279,14 +276,14 @@ namespace ProjectoGestaoBiblioteca
                         var foundBooks = Library.SearchBook(search);
                         Console.WriteLine(Utils.ListToString(foundBooks, "Books Found"));
 
-                        int index = Utils.ReadInt("Choose the book index: ", 1, foundBooks.Count);
+                        int index = Utils.ReadInt("Choose the book index:", 1, foundBooks.Count);
                         index--; // Adjust for 0-based index
                         var book = foundBooks[index];
-                        int edition =Utils.ReadInt("Edition: ", 1);
-                        int code = Utils.ReadInt("Code: ", 1);
+                        int edition =Utils.ReadInt("Edition:", 1);
+                        int code = Utils.ReadInt("Code:", 1);
                         var conditionList = Enum.GetValues<Copy.CopyCondition>().ToList();
                         Console.WriteLine(Utils.ListToString(conditionList, "Possible conditions:"));
-                        int conditionIndex = Utils.ReadInt("Choose the condition index: ", 1, conditionList.Count);
+                        int conditionIndex = Utils.ReadInt("Choose the condition index:", 1, conditionList.Count);
                         conditionIndex--; // Adjust for 0-based index
                         var condition = conditionList[conditionIndex];
 
@@ -305,17 +302,18 @@ namespace ProjectoGestaoBiblioteca
                         break;
                     case "5":
                         // View books logic
+                        
                         Console.WriteLine(Library.BooksToString(true));
                        
                         break;
                     case "6":
                         // Current loans logic
-
+                        
                         Console.WriteLine(Library.GetReport());
                         break;
                     case "7":
                         // Loan report logic
-                        Console.WriteLine("Loan Report:");
+                        
                         GetLoanReport();
                         break;
                     case "8":
@@ -393,7 +391,8 @@ namespace ProjectoGestaoBiblioteca
                 Console.WriteLine("4. Logout");
                 Console.Write("Select an option: ");
                 string? choice = Console.ReadLine();
-            
+                Thread.Sleep(500); // Simulate some processing time
+                NewConsole();
                 switch (choice)
                 {
                     case "1":
@@ -409,7 +408,7 @@ namespace ProjectoGestaoBiblioteca
                     
                         if (foundBooks?.Count > 0)
                         {
-                            int index = Utils.ReadInt("Choose the book index: ", 1, foundBooks.Count);
+                            int index = Utils.ReadInt("Choose the book index:", 1, foundBooks.Count);
                             index--; // Adjust for 0-based index
                             var book = foundBooks[index];
                             if (foundBooks[index].AvailableCopies > 0)
@@ -454,7 +453,7 @@ namespace ProjectoGestaoBiblioteca
                         {
                             Console.WriteLine("You have multiple copies to return:");
                             Console.WriteLine(Utils.ListToString(LoggedUser.CurrentLoans, "Copies to return"));
-                            int index = Utils.ReadInt("Choose the copy index: ", 1, LoggedUser.CurrentLoans.Count);
+                            int index = Utils.ReadInt("Choose the copy index:", 1, LoggedUser.CurrentLoans.Count);
                             index--; // Adjust for 0-based index
                             var copyToReturn = LoggedUser.CurrentLoans[index];
                             if (copyToReturn != null)

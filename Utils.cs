@@ -36,23 +36,21 @@ namespace ProjectoGestaoBiblioteca
             return input; //no need for null-forgiving operator?
         }
 
-        //public static bool ReadValidPassword(string message, Func<string, bool> isValid)
-        //{
-        //    string? input;
+        public static bool ReadBool(string message, string yes = "y", string no = "n")
+        {
+            string? input;
+            bool isValid;
+            do
+            {
+                Console.Write(message + " (" + yes + "/" + no +"): ");
+                input = Console.ReadLine();
+                isValid = input != null && (input.Equals(yes, StringComparison.OrdinalIgnoreCase) || input.Equals(no, StringComparison.OrdinalIgnoreCase));
+                if (!isValid) WriteError("Invalid input. Please try again.");
+                else break;
+            } while (true);
 
-        //    do
-        //    {
-        //        Console.Write(message + " ");
-        //        input = Console.ReadLine();
-
-        //        if (input == null || !isValid(input))
-        //            WriteError("Invalid input. Please try again.");
-        //        else
-        //            break;
-        //    } while (true);
-
-        //    return input; //no need for null-forgiving operator?
-        //}
+            return input.Equals(yes, StringComparison.OrdinalIgnoreCase);
+        }
 
 
         /// <summary>
